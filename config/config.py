@@ -53,6 +53,8 @@ TRADE_SHIPPING_FIXED = float(TRADE_SHIPPING_FIXED)
 TRADE_ANALYZER = config.get('trade', 'analyzer')
 TRADE_ANALYZER = BackTradeConfig.fetch_strategy_analyzer(TRADE_ANALYZER)
 
+TUSHARE_API_KEY = config.get('tushare', 'api_key')
+
 
 class CcxtConfig:
     """
@@ -98,3 +100,7 @@ class TradeConfig:
     strategy = None
     # 分析器
     analyzer = TRADE_ANALYZER
+
+
+class TushareConfig:
+    api_key = TUSHARE_API_KEY
