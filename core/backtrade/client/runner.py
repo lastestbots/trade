@@ -43,8 +43,8 @@ class StrategyRunner:
             raise ValueError("未配置分析器")
         # 加载backtrader引擎
         cerebro = self.load_cerebro(config)
-        # config.analyzer.execute(cerebro)
-        cerebro.run()
+        analyzer = config.analyzer.target_class
+        analyzer.execute(cerebro)
         pass
 
     def load_data(self) -> dict:

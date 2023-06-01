@@ -2,9 +2,9 @@ import os
 from configparser import ConfigParser
 from datetime import datetime
 
-from core.backtrade import BackTradeConfig
+from core.model.enums import AnalyzerType
 from core.utils.date_util import DateUtil
-from init import fetch_app_path, fetch_default_config_path
+from init import fetch_app_path, fetch_default_config_path, fetch_pyfolio_template_path
 
 # 读取配置文件
 CONFIG_FILENAME = './config.ini'
@@ -46,12 +46,14 @@ else:
 TRADE_ENABLE_SHORT = config.get('trade', 'enable_shore').lower() == 'true'
 
 TRADE_ENABLE_COC = config.get('trade', 'enable_coc').lower() == 'true'
-
+TRADE_IS_SHOW_LOG = config.get('trade', 'is_show_trade_log').lower() == 'true'
 TRADE_SHIPPING_FIXED = config.get('trade', 'slippage_fixed')
 TRADE_SHIPPING_FIXED = float(TRADE_SHIPPING_FIXED)
 
 TRADE_ANALYZER = config.get('trade', 'analyzer')
-TRADE_ANALYZER = BackTradeConfig.fetch_strategy_analyzer(TRADE_ANALYZER)
+TRADE_ANALYZER = AnalyzerType.value_of(TRADE_ANALYZER)
+
+PYFOLIO_TEMPLATE_PATH = fetch_pyfolio_template_path()
 
 
 class CcxtConfig:
@@ -97,4 +99,10 @@ class TradeConfig:
     # 运行策略
     strategy = None
     # 分析器
-    analyzer = TRADE_ANALYZER
+    analyzer: AnalyzerType = TRADE_ANALYZER
+    is_show_trade_log = TRADE_IS_SHOW_LOG
+
+
+class AnalyzerConfig:
+    #
+    template_report_path = PYFOLIO_TEMPLATE_PATH

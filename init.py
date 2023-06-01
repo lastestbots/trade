@@ -8,3 +8,7 @@ def fetch_app_path():
 
 def fetch_default_config_path():
     return fetch_app_path() + '/helper/config.ini'
+
+
+def fetch_pyfolio_template_path():
+    return fetch_app_path() + '/helper/report.html'

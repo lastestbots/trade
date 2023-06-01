@@ -10,3 +10,8 @@ class TestStrategyRunner(unittest.TestCase):
         runner = StrategyRunner()
         runner.config.strategy = SmaCross
         runner.run()
+
+    def test_sma_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = SmaCross
+        runner.run()

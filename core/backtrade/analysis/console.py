@@ -1,27 +1,36 @@
 import backtrader as bt
-import pyfolio as pf
 
+from core.backtrade.base.kline import fetch_klines_name
 from core.model.bt_analysis import ConsoleAnalyzedResult
 
 
 class ConsoleAnalyzer:
     @staticmethod
-    def execute(cerebro: bt.Cerebro):
-        result = ConsoleAnalyzedResult()
+    def execute(cerebro: bt.Cerebro) -> ConsoleAnalyzedResult:
+        start_cash = cerebro.broker.getvalue()
         cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
-        result.start_cash = cerebro.broker.getvalue()
-        result.final_asset = cerebro.broker.getvalue()
-
+        cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')
+        symbols = []
         for klines in cerebro.datas:
-            result.symbols.add(klines._name)
+            symbols.append(fetch_klines_name(klines))
+        for strat in cerebro.run():
+            final_asset = cerebro.broker.getvalue()
+            pyfoliozer = strat.analyzers.getbyname('pyfolio')
+            trades_analysis = strat.analyzers.trades.get_analysis()
+            max_gain = trades_analysis.streak.won.longest
+            max_loss = trades_analysis.streak.lost.longest
+            cum_trades = trades_analysis.total.total
+            total_wins = trades_analysis.won.total
+            if cum_trades > 0:
 
-        strat = cerebro.run()
-        pyfoliozer = strat.analyzers.getbyname('pyfolio')
-        returns, positions, transactions, gross_lev = pyfoliozer.get_pf_items()
-        pf.create_full_tear_sheet(
-            returns,
-            positions=positions,
-            transactions=transactions,
-            gross_lev=gross_lev,
-            live_start_date='2005-05-01',  # This date is sample specific
-            round_trips=True)
+                gain_ratio = total_wins / cum_trades
+            else:
+                gain_ratio = 0
+            returns, positions, transactions, gross_lev = pyfoliozer.get_pf_items()
+            result = ConsoleAnalyzedResult(returns, symbols, start_cash, final_asset)
+            result.max_gain = max_gain
+            result.max_loss = max_loss
+            result.gain_ratio = gain_ratio
+            result.cum_trades = cum_trades
+            result.show_result_empyrical()
+            return result

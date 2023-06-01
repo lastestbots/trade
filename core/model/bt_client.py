@@ -1,28 +1,5 @@
-from enum import Enum
-
+from core.model.enums import OrderSide, OrderType
 from core.utils.colour import ColourTxtUtil
-
-
-class OrderSide(Enum):
-    Buy = 'B'
-    Sell = 'S'
-
-    def is_buy(self) -> bool:
-        return self.value == OrderSide.Buy.value
-
-    def is_sell(self) -> bool:
-        return self.value == OrderSide.Sell.value
-
-
-class OrderType(Enum):
-    Market = 'M'
-    Limit = 'L'
-
-    def is_market(self) -> bool:
-        return self.value == OrderType.Market.value
-
-    def is_limit(self) -> bool:
-        return self.value == OrderType.Limit.value
 
 
 class ConsoleOrderParam:
@@ -163,6 +140,3 @@ class ConsoleOrderParamsFactory:
         if params.type.is_limit():
             params.fetch_price()
         return params
-
-
-

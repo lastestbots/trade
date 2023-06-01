@@ -1,9 +1,13 @@
 import backtrader as bt
 
+from config.config import TradeConfig
+from core.backtrade.base.kline import fetch_klines_name
+
 
 class SmaCross(bt.Strategy):
     # 定义参数
     params = dict(period=5)  # 移动平均期数
+    is_show_log = TradeConfig.is_show_trade_log
 
     def __init__(self):
         print("init strategy")
@@ -12,7 +16,8 @@ class SmaCross(bt.Strategy):
     def log(self, txt, dt=None):
         """日志函数"""
         dt = dt or self.datas[0].datetime.date(0)
-        print('%s, %s' % (dt.isoformat(), txt))
+        if self.is_show_log:
+            print('%s, %s' % (dt.isoformat(), txt))
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -30,8 +35,8 @@ class SmaCross(bt.Strategy):
     # 记录交易收益情况（可省略，默认不输出结果）
     def notify_trade(self, trade):
         if trade.isclosed:
-            print('毛收益 %0.2f, 扣佣后收益 % 0.2f, 佣金 %.2f' %
-                  (trade.pnl, trade.pnlcomm, trade.commission))
+            self.log('毛收益 %0.2f, 扣佣后收益 % 0.2f, 佣金 %.2f' %
+                     (trade.pnl, trade.pnlcomm, trade.commission))
 
     def __init__(self):
         # 移动平均线指标
@@ -41,13 +46,19 @@ class SmaCross(bt.Strategy):
         self.crossover = bt.ind.CrossOver(self.data, self.move_average)
 
     def next(self):
-        self.log("hello world")
-        if not self.position:  # 还没有仓位
+
+        clash = self.broker.getcash()
+        for klines in self.datas:
+            self.trade(klines, clash * 1 / len(self.datas))
+
+    def trade(self, klines, clash):
+        position = self.getposition(klines)
+
+        if position.size == 0:
             # 当日收盘价上穿5日均线，创建买单，买入100股
             if self.crossover > 0:
-                self.log('创建买单')
-                self.buy(size=100)
-        # 有仓位，并且当日收盘价下破5日均线，创建卖单，卖出100股
+                self.log('创建买单 {}'.format(fetch_klines_name(klines)))
+                self.buy(size=clash / klines.high[0])
         elif self.crossover < 0:
-            self.log('创建卖单')
-            self.sell(size=100)
+            self.log('创建卖单 {}'.format(fetch_klines_name(klines)))
+            self.close(data=klines)
