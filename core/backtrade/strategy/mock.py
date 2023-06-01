@@ -2,13 +2,80 @@ from typing import Dict, List
 
 import backtrader as bt
 
-from core.backtrade.base.command import operation_help_info
-from core.backtrade.base.kline import fetch_klines_name, format_order_info, format_klines_str, compute_profit
 from core.model.bt_client import ConsoleOrderParamsFactory
 from core.utils.colour import ColourTxtUtil
 
 
-class SpotStrategy(bt.Strategy):
+def operation_help_info() -> str:
+    return "{} {}: Busy {}: Sell  {}:Account {}: Next".format(
+        ColourTxtUtil.cyan('Command'),
+        ColourTxtUtil.red("B"),
+        ColourTxtUtil.red("S"),
+        ColourTxtUtil.red("A"),
+        ColourTxtUtil.red("N"),
+
+    )
+
+
+def format_order_info(symbol, order):
+    return "{} {} {} ".format(ColourTxtUtil.green("订单"),
+                              ColourTxtUtil.cyan(symbol),
+                              order
+                              )
+    # return "{} {} {}: {} {}:{} {}：{}".format(ColourTxtUtil.green("订单"),
+    #                                          ColourTxtUtil.cyan(symbol),
+    #                                          ColourTxtUtil.blue("Size"),
+    #                                          order.size,
+    #                                          ColourTxtUtil.blue("Price"),
+    #                                          order.price,
+    #                                          ColourTxtUtil.blue("Side"),
+    #                                          order.type,
+    #                                          ColourTxtUtil.blue("Type"),
+    #                                          order.getstatusname()
+    #                                          )
+
+
+def format_klines_str(klines, index=0):
+    symbol = fetch_klines_name(klines)
+    date_str = bt.num2date(klines.lines[6][0])
+    return "{} {} {}: {} {}: {} {}: {} {}: {} {}: {} {}:{} {}：{} %".format(
+        ColourTxtUtil.cyan("行情"),
+        symbol,
+
+        ColourTxtUtil.blue("Time"),
+        date_str,
+        ColourTxtUtil.blue("Open"),
+        klines.open[index],
+        ColourTxtUtil.blue("High"),
+        klines.high[0],
+        ColourTxtUtil.blue("Low"),
+        klines.low[0],
+        ColourTxtUtil.blue(
+            "Close"),
+        klines.close[0],
+        ColourTxtUtil.blue(
+            "Volume"),
+        klines.volume[0],
+        ColourTxtUtil.blue(
+            "Change"),
+        (klines.close[0] - klines.open[0]) / klines.open[0] * 100
+    )
+
+
+def fetch_klines_name(klines):
+    symbol = klines._name
+    return symbol
+
+
+def compute_profit(position, price):
+    if position.price > 0 and position.price > 0:
+        return (price - position.price) / position.price * 100
+    elif position.price > 0 and position.price > 0:
+        return 0 - (abs(position.price) - price) / abs(position.price) * 100
+    return 0
+
+
+class MockSpotStrategy(bt.Strategy):
     logger = print
 
     def __init__(self):
@@ -22,6 +89,7 @@ class SpotStrategy(bt.Strategy):
             self.symbols[fetch_klines_name(klines)] = klines
 
     def log(self, text):
+        # date_str = bt.num2date(self.datas[0].lines[6][0])
         self.logger(text)
 
     def fetch_order_symbol(self, order):
@@ -58,20 +126,9 @@ class SpotStrategy(bt.Strategy):
                           order.executed.value,
                           order.executed.comm,
                           order.executed.size))
-        elif order.status in [order.Margin]:
-            self.log('{} {}: 订单保证金不足'.format(
-                ColourTxtUtil.blue(symbol),
-                ColourTxtUtil.blue(order.Status[order.status]),
-            ))
-        elif order.status in [order.Canceled]:
-            self.log('{} {}: 订单取消'.format(
-                ColourTxtUtil.blue(symbol),
-                ColourTxtUtil.blue(order.Status[order.status]),
-            ))
-        elif order.status in [order.Rejected]:
-            self.log('{} {}: 金额不足拒绝交易'.format(
-                ColourTxtUtil.blue(symbol),
-                ColourTxtUtil.blue(order.Status[order.status]),
+        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+            self.log('{}: 订单取消、保证金不足、金额不足拒绝交易'.format(
+                ColourTxtUtil.blue(symbol)
             ))
         elif order.status in [order.Expired]:
             self.log('{}: 超过时效，已取消'.format(
@@ -191,9 +248,8 @@ class SpotStrategy(bt.Strategy):
 
         order = ConsoleOrderParamsFactory.fetch_buy_by_console(self.log, list(self.symbols.keys()))
         klines = self.symbols[order.symbol]
-        size = self.broker.get_cash() * 0.01 * order.ratio / klines.high[0]
-        self.log("{}: {}".format(ColourTxtUtil.orange("金额"), size * klines.high[0]))
-        print(order.ratio)
+        size = self.cash * 0.01 * order.ratio / klines.high[0]
+
         self.handle_order(order, size)
 
     def handle_order(self, order, size):
@@ -213,3 +269,9 @@ class SpotStrategy(bt.Strategy):
                 o = self.sell(data=klines, size=size, price=order.price, exectype=bt.Order.Limit)
         if o is not None:
             self.orders[order.symbol].append(o)
+
+
+
+
+
+

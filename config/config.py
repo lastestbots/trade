@@ -7,7 +7,8 @@ from core.utils.date_util import DateUtil
 from init import fetch_app_path, fetch_default_config_path
 
 # 读取配置文件
-CONFIG_FILENAME = './config3.ini'
+CONFIG_FILENAME = './config.ini'
+
 config = ConfigParser()
 if os.path.exists(CONFIG_FILENAME):
     config.read(CONFIG_FILENAME, encoding='utf-8')

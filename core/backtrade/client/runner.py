@@ -1,7 +1,9 @@
 import backtrader as bt
+import pandas as pd
 from loguru import logger
 
 from config.config import TradeConfig
+from core.backtrade.feeds.cctx import CCxtPdData
 from core.utils.ccxt_util import OhlvUtil
 
 
@@ -66,17 +68,21 @@ class StrategyRunner:
         cerebro.broker.set_shortcash(config.enable_shore)
         # 策略加进来
         # todo 不同风险策略
-        cerebro.addsizer(bt.sizers.FixedSize, stake=1)
+        # cerebro.addsizer(bt.sizers.FixedSize, stake=1)
         # 设置以收盘价成交，作弊模式
         cerebro.broker.set_coc(config.trade_enable_coc)
         # 设置初始资金
         cerebro.broker.set_cash(config.account_balance)
         cerebro.broker.set_slippage_fixed(config.trade_shipping_fixed)
         # 设置手续费
-        cerebro.broker.setcommission(commission=config.account_balance)
-        # 加载数据
-        self.load_data()
+        cerebro.broker.setcommission(commission=config.account_fee)
         # 设置运行策略
         cerebro.addstrategy(strategy=config.strategy)
         self.cerebro = cerebro
+        # 加载数据
+        self.load_data()
+        for symbol, kline in self.klines.items():
+            kline['Time'] = pd.to_datetime(kline['Time'])
+            kline.set_index('Time', inplace=True)
+            cerebro.adddata(data=CCxtPdData(dataname=kline), name=symbol)
         return cerebro

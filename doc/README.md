@@ -8,35 +8,48 @@ pip freeze > requirements.txt
 
 ![img.png](img.png)
 
-### 配置文件 （config.ini）
+### 配置
 
 ```
-#交易参数
-[trade]
-# 交易品种
-symbols = OPUSDT
-# 交易时间级别
-timeframe = 4h
-# 测试数据开始日期
-from_time = 2023-01-01
-# 测试数据结束日期
-to_time = 2023-05-08
-# 是否允许做空
-enable_shore = False
-# 初始资金
-balance = 1000
-# 手续费
-fee = 0.001
-
-# 启动端口
-[config]
-host = 127.0.0.1
-port = 8000
-# 交易所配置
-[ccxt]
-api_key = None
-secret = None
-[strategy]
-run_mod = Debug
+配置文件读取
+   优先读取 ./脚本目录路径/config.ini 
+   默认读取 ./helper/config.ini  
+   配置文件 config/config.py 
 ```
+
+### 功能
+
+- 数据下载
+    - 虚拟货币k线数据
+- 策略
+    - 现货模拟交易器
+
+### DEMO
+
+- 运行现货模拟交易
+
+```python 
+import unittest
+
+from core.backtrade.client.mock import SpotTradeClient
+# 初始化时候client的config,默认从配置文件中加载
+client = SpotTradeClient()
+# 交易股票
+client.config.trade_symbols = ['stock_name']
+# 初始金额
+client.config.trade_balance = 10000
+....
+
+# 运行
+client.run()
+
+
+# 通过修改client.config属性,修改运行参数
+
+```
+- 运行结果
+![img_3.png](img_3.png)
+
+
+
 

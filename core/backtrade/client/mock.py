@@ -1,6 +1,6 @@
 from config.config import TradeConfig
-from core.bt.client.runner import StrategyRunner
-from core.bt.strategy.spot import SpotStrategy
+from core.backtrade.client.runner import StrategyRunner
+from core.backtrade.strategy.spot import SpotStrategy
 
 
 class SpotTradeClient(StrategyRunner):

@@ -1,4 +1,4 @@
-from core.bt.analysis.console import ConsoleAnalyzer
+from core.backtrade.analysis.console import ConsoleAnalyzer
 
 BT_GLOBAL_CONFIG = {
     'analyzer': {
