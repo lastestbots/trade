@@ -2,15 +2,20 @@ import time
 from datetime import datetime
 
 
+class DateFormat:
+    YMDHMS = '%Y-%m-%d %H:%M:%S'
+    YMD = '%Y-%m-%d'
+
+
 class DateUtil:
 
     @staticmethod
-    def timestamp_to_format(timestamp, fmt="%Y-%m-%d %H:%M:%S") -> str:
+    def timestamp_to_format(timestamp, fmt=DateFormat.YMDHMS) -> str:
         time_array = time.localtime(timestamp)
         return time.strftime(fmt, time_array)
 
     @staticmethod
-    def format_to_timestamp(date: str, fmt="%Y-%m-%d %H:%M:%S") -> int:
+    def format_to_timestamp(date: str, fmt=DateFormat.YMDHMS) -> int:
         """
         时间戳转字符串
         """
@@ -19,14 +24,14 @@ class DateUtil:
         return timestamp
 
     @staticmethod
-    def format_to_datetime(date_str: str, fmt="%Y-%m-%d") -> datetime:
+    def format_to_datetime(date_str: str, fmt=DateFormat.YMD) -> datetime:
         """
         时间戳转字符串
         """
         return datetime.strptime(date_str, fmt)
 
     @staticmethod
-    def format_to_end_datetime(date_str: str, fmt="%Y-%m-%d") -> datetime:
+    def format_to_end_datetime(date_str: str, fmt=DateFormat.YMD) -> datetime:
         """
         时间戳转字符串
         """
@@ -38,16 +43,16 @@ class DateUtil:
     def get_today_end_format():
         today = datetime.today().date()
         end_of_day = datetime.combine(today, datetime.max.time())
-        end_of_day_iso = end_of_day.strftime('%Y-%m-%d %H:%M:%S')
+        end_of_day_iso = end_of_day.strftime(DateFormat.YMDHMS)
         return end_of_day_iso
 
     @staticmethod
-    def datetime_to_format(date: datetime):
-        end_of_day_iso = date.strftime('%Y-%m-%d %H:%M:%S')
+    def datetime_to_format(date: datetime, fmt=DateFormat.YMDHMS):
+        end_of_day_iso = date.strftime(fmt)
         return end_of_day_iso
 
     @staticmethod
-    def format_to_begin_datetime(date_str: str, fmt="%Y-%m-%d") -> datetime:
+    def format_to_begin_datetime(date_str: str, fmt=DateFormat.YMD) -> datetime:
         """
         时间戳转字符串
         """
