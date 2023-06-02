@@ -50,8 +50,10 @@ TRADE_IS_SHOW_LOG = config.get('trade', 'is_show_trade_log').lower() == 'true'
 TRADE_SHIPPING_FIXED = config.get('trade', 'slippage_fixed')
 TRADE_SHIPPING_FIXED = float(TRADE_SHIPPING_FIXED)
 
-TRADE_ANALYZER = config.get('trade', 'analyzer')
-TRADE_ANALYZER = AnalyzerType.value_of(TRADE_ANALYZER)
+CONFIG_TRADE_ANALYZERS = config.get('trade', 'analyzers').split(",")
+TRADE_ANALYZERS = []
+for TRADE_ANALYZER in CONFIG_TRADE_ANALYZERS:
+    TRADE_ANALYZERS.append(AnalyzerType.value_of(TRADE_ANALYZER))
 
 PYFOLIO_TEMPLATE_PATH = fetch_pyfolio_template_path()
 
@@ -99,10 +101,8 @@ class TradeConfig:
     # 运行策略
     strategy = None
     # 分析器
-    analyzer: AnalyzerType = TRADE_ANALYZER
+    analyzers = TRADE_ANALYZERS
     is_show_trade_log = TRADE_IS_SHOW_LOG
-
-
-class AnalyzerConfig:
-    #
-    template_report_path = PYFOLIO_TEMPLATE_PATH
+    # 资源位置
+    resource_path = RESOURCE_PATH
+    pyfolio_template_path = PYFOLIO_TEMPLATE_PATH

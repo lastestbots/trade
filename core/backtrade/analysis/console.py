@@ -6,7 +6,7 @@ from core.model.bt_analysis import ConsoleAnalyzedResult
 
 class ConsoleAnalyzer:
     @staticmethod
-    def execute(cerebro: bt.Cerebro) -> ConsoleAnalyzedResult:
+    def execute(cerebro: bt.Cerebro, config) -> ConsoleAnalyzedResult:
         start_cash = cerebro.broker.getvalue()
         cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
         cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')

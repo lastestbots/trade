@@ -39,13 +39,12 @@ class StrategyRunner:
     def run(self):
         logger.debug("运行策略：{}".format(self.config.strategy))
         config = self.config
-        if config.analyzer is None:
+        if config.analyzers is None:
             raise ValueError("未配置分析器")
         # 加载backtrader引擎
         cerebro = self.load_cerebro(config)
-        analyzer = config.analyzer.target_class
-        analyzer.execute(cerebro)
-        pass
+        for analyzer in config.analyzers:
+            analyzer.target_class.execute(cerebro, self.config)
 
     def load_data(self) -> dict:
         config = self.config

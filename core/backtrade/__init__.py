@@ -1,8 +1,10 @@
 from core.backtrade.analysis.console import ConsoleAnalyzer
+from core.backtrade.analysis.pyfolio import PyfolioReportAnalyzer
 
 BT_GLOBAL_CONFIG = {
     'analyzer': {
-        'ConsoleAnalyzer': ConsoleAnalyzer
+        'ConsoleAnalyzer': ConsoleAnalyzer,
+        'PyfolioReportAnalyzer': PyfolioReportAnalyzer
     }
 }
 
