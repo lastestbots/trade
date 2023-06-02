@@ -2,13 +2,14 @@ from typing import Dict, List
 
 import backtrader as bt
 
-from core.backtrade.base.command import operation_help_info
-from core.backtrade.base.kline import fetch_klines_name, format_order_info, format_klines_str, compute_profit
-from core.model.bt_client import ConsoleOrderParamsFactory
+from core.backtrade.strategy.template import TemplateStrategy
+from core.backtrade.utils.format import ConsoleFormatUtil
+from core.backtrade.utils.symbol import SymbolUtil
+from core.model.bt_console import ConsoleOrderFactory
 from core.utils.colour import ColourTxtUtil
 
 
-class SpotStrategy(bt.Strategy):
+class SpotStrategy(TemplateStrategy):
     logger = print
 
     def __init__(self):
@@ -18,11 +19,9 @@ class SpotStrategy(bt.Strategy):
 
         self.symbols = {}
         for klines in self.datas:
-            self.orders[fetch_klines_name(klines)] = []
-            self.symbols[fetch_klines_name(klines)] = klines
-
-    def log(self, text):
-        self.logger(text)
+            symbol = SymbolUtil.klines_symbol(klines)
+            self.orders[symbol] = []
+            self.symbols[symbol] = klines
 
     def fetch_order_symbol(self, order):
         for symbol, orders in self.orders.items():
@@ -30,55 +29,6 @@ class SpotStrategy(bt.Strategy):
                 if o == order:
                     return symbol
         return None
-
-    def notify_order(self, order):
-        """
-        订单状态处理
-
-        """
-        symbol = self.fetch_order_symbol(order)
-
-        if order.status in [order.Submitted, order.Accepted]:
-            # 如订单已被处理，则不用做任何事情
-            return
-            # 检查订单是否完成
-        if order.status in [order.Completed]:
-            if order.isbuy():
-                self.log(
-                    '%s: 执行做多, 价格: %.2f, 花费: %.2f, 手续费 %.2f,数量 %.2f' %
-                    (ColourTxtUtil.blue(symbol),
-                     order.executed.price,
-                     order.executed.value,
-                     order.executed.comm,
-                     order.executed.size,))
-            else:
-                self.log('%s: 执行做空, 价格: %.2f, 花费: %.2f, 手续费 %.2f 数量%.2f' %
-                         (ColourTxtUtil.blue(symbol),
-                          order.executed.price,
-                          order.executed.value,
-                          order.executed.comm,
-                          order.executed.size))
-        elif order.status in [order.Margin]:
-            self.log('{} {}: 订单保证金不足'.format(
-                ColourTxtUtil.blue(symbol),
-                ColourTxtUtil.blue(order.Status[order.status]),
-            ))
-        elif order.status in [order.Canceled]:
-            self.log('{} {}: 订单取消'.format(
-                ColourTxtUtil.blue(symbol),
-                ColourTxtUtil.blue(order.Status[order.status]),
-            ))
-        elif order.status in [order.Rejected]:
-            self.log('{} {}: 金额不足拒绝交易'.format(
-                ColourTxtUtil.blue(symbol),
-                ColourTxtUtil.blue(order.Status[order.status]),
-            ))
-        elif order.status in [order.Expired]:
-            self.log('{}: 超过时效，已取消'.format(
-                ColourTxtUtil.blue(symbol)
-            ))
-
-        self.remove_order(order)
 
     def remove_order(self, order):
         for symbol, orders in self.orders.items():
@@ -111,30 +61,20 @@ class SpotStrategy(bt.Strategy):
 
     def show_position_info(self, klines):
         position = self.getposition(klines)
-        symbol = fetch_klines_name(klines)
-
-        self.log("{} {} {}: {} {}:{} {}：{} {}：{} %".format(ColourTxtUtil.green("资产"),
-                                                           ColourTxtUtil.cyan(symbol),
-                                                           ColourTxtUtil.blue("Size"),
-                                                           position.size,
-                                                           ColourTxtUtil.blue("Price"),
-                                                           position.price,
-                                                           ColourTxtUtil.blue("Assert"),
-                                                           position.size * position.price,
-                                                           ColourTxtUtil.blue("Profit"),
-                                                           compute_profit(position, klines.close[0])
-                                                           ))
+        position_str = ConsoleFormatUtil.position_str(position, klines)
+        self.log(position_str)
 
     def show_order_info(self, klines):
-        symbol = fetch_klines_name(klines)
+        symbol = SymbolUtil.klines_symbol(klines)
         if symbol in self.orders:
             orders = self.orders[symbol]
             for order in orders:
-                order_str = format_order_info(symbol, order)
+                order_str = ConsoleFormatUtil.order_str(order)
                 self.log(order_str)
 
     def show_klines_info(self, klines):
-        self.log(format_klines_str(klines))
+        klines_str = ConsoleFormatUtil.klines_srt(klines)
+        self.log(klines_str)
 
     def show_account_info(self):
         self.log(self.account_info())
@@ -155,17 +95,23 @@ class SpotStrategy(bt.Strategy):
         # 交易信息
         self.log("\n{}".format(ColourTxtUtil.purple('实盘交易模拟器')))
         self.show_account_info()
+        self.log("\n")
         for klines in self.datas:
             self.show_position_info(klines)
+        self.log("\n")
+        for klines in self.datas:
             self.show_order_info(klines)
+        self.log("\n")
+        for klines in self.datas:
             self.show_klines_info(klines)
         # 从控制台获取指令
+        self.log("\n")
         self.input_command()
         pass
 
     def input_command(self):
         while True:
-            self.log(operation_help_info())
+            self.log(ConsoleFormatUtil.command_str())
             command = input("{}：".format(ColourTxtUtil.red("指令"))).replace(' ', '').upper()
             if command == '' or command == 'N':
                 break
@@ -177,7 +123,7 @@ class SpotStrategy(bt.Strategy):
                 self.execute_sell_command()
 
     def execute_sell_command(self):
-        order = ConsoleOrderParamsFactory.fetch_sell_by_console(self.log, list(self.symbols.keys()))
+        order = ConsoleOrderFactory.create_feature_order(self.cash, self.symbols.keys())
         # 检查是否有仓位
         position = self.fetch_symbol_position(order.symbol)
         if position.size == 0:
@@ -189,7 +135,7 @@ class SpotStrategy(bt.Strategy):
 
     def execute_buy_command(self):
 
-        order = ConsoleOrderParamsFactory.fetch_buy_by_console(self.log, list(self.symbols.keys()))
+        order = ConsoleOrderFactory.fetch_buy_by_console(self.log, list(self.symbols.keys()))
         klines = self.symbols[order.symbol]
         size = self.broker.get_cash() * 0.01 * order.ratio / klines.high[0]
         self.log("{}: {}".format(ColourTxtUtil.orange("金额"), size * klines.high[0]))

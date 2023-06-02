@@ -1,7 +1,7 @@
 import backtrader as bt
 
 from config.config import TradeConfig
-from core.backtrade.base.kline import fetch_klines_name
+from core.backtrade.utils.symbol import SymbolUtil
 
 
 class SmaCross(bt.Strategy):
@@ -57,8 +57,15 @@ class SmaCross(bt.Strategy):
         if position.size == 0:
             # 当日收盘价上穿5日均线，创建买单，买入100股
             if self.crossover > 0:
-                self.log('创建买单 {}'.format(fetch_klines_name(klines)))
+                self.log('创建买单 {}'.format(SymbolUtil.klines_symbol(klines)))
                 self.buy(size=clash / klines.high[0])
         elif self.crossover < 0:
-            self.log('创建卖单 {}'.format(fetch_klines_name(klines)))
+            self.log('创建卖单 {}'.format(SymbolUtil.klines_symbol(klines)))
             self.close(data=klines)
+
+
+
+
+
+
+

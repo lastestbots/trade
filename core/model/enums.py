@@ -11,6 +11,10 @@ class OrderSide(Enum):
     Buy = 'B'
     Sell = 'S'
 
+    @property
+    def command(self):
+        return self.value
+
     def is_buy(self) -> bool:
         return self.value == OrderSide.Buy.value
 
@@ -24,7 +28,9 @@ class OrderType(Enum):
     """
     Market = 'M'
     Limit = 'L'
-
+    @property
+    def command(self):
+        return self.value
     def is_market(self) -> bool:
         return self.value == OrderType.Market.value
 
@@ -43,5 +49,3 @@ class AnalyzerType(Enum):
     @staticmethod
     def value_of(analyzer):
         return AnalyzerType[analyzer]
-
-

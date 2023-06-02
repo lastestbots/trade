@@ -15,8 +15,7 @@ class PyfolioReportAnalyzer:
         财务数据
         :return:
         """
-        import warnings
-        warnings.filterwarnings('ignore')
+
         template_path = config.pyfolio_template_path
         output = PyfolioReportAnalyzer.fetch_output_path(config)
         stats = cerebro.run()

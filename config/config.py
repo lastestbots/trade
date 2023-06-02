@@ -5,7 +5,8 @@ from datetime import datetime
 from core.model.enums import AnalyzerType
 from core.utils.date_util import DateUtil
 from init import fetch_app_path, fetch_default_config_path, fetch_pyfolio_template_path
-
+import warnings
+warnings.filterwarnings('ignore')
 # 读取配置文件
 CONFIG_FILENAME = './config.ini'
 

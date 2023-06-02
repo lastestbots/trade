@@ -1,66 +1,109 @@
 import backtrader as bt
-from loguru import logger
+
+from core.backtrade.utils.format import ConsoleFormatUtil
+from core.backtrade.utils.symbol import SymbolUtil
+from core.utils.colour import ColourTxtUtil
+from core.utils.date_util import DateFormat
 
 
 class TemplateStrategy(bt.Strategy):
+    logger = print
 
     def __init__(self):
-        # 记录用
-        self.buy_bond_record = {}  # 记录购买的订单
-        self.sell_bond_record = {}  # 记录卖出的订单
+        self.symbols = {}
+        for klines in self.datas:
+            symbol = SymbolUtil.klines_symbol(klines)
+            self.symbols[symbol] = klines
+
+        self.order_value = 0
 
     def next(self):
         """最核心的触发策略"""
         raise
 
+    def log(self, text):
+        self.logger(text)
+
     def notify_order(self, order):
         """通知订单状态,当订单状态变化时触发"""
-        today_time_string = self.datetime.datetime().strftime('%Y-%m-%d')
+
+        symbol = SymbolUtil.order_symbol(order)
+        data_str = self.datetime.datetime().strftime(DateFormat.YMDHMS)
+        symbol = data_str + ' ' + symbol
         if order.status in [order.Submitted, order.Accepted]:  # 接受订单交易，正常情况
             return
         if order.status in [order.Completed]:
             if order.isbuy():
-                self.buy_bond_record.setdefault(today_time_string, {})
-                self.buy_bond_record[today_time_string].setdefault(order.data._name.replace(".", "_"), [])
-                self.buy_bond_record[today_time_string][order.data._name.replace(".", "_")].append({
-                    "order_ref": order.ref,
-                    "bond_name": order.data._name,
-                    "size": order.size,
-                    "price": order.executed.price,
-                    "value": order.executed.value,
-                    "trade_date": self.datetime.datetime(0),
-                })
-                logger.debug('{} 订单{} 已购入 {} , 购入单价 {:.2f}, 数量 {}, 费用 {:.2f}, 手续费 {:.2f}'.
-                             format(self.datetime.date(), order.ref, order.data._name, order.executed.price, order.size,
-                                    order.executed.value, order.executed.comm))
-            elif order.issell():
-                self.sell_bond_record.setdefault(today_time_string, {})
-                self.sell_bond_record[today_time_string].setdefault(order.data._name.replace(".", "_"), [])
-                self.sell_bond_record[today_time_string][order.data._name.replace(".", "_")].append({
-                    "order_ref": order.ref,
-                    "bond_name": order.data._name,
-                    "size": order.size,
-                    "price": order.executed.price,
-                    "value": - order.executed.price * order.size,
-                    "sell_type": order.info.sell_type,
-                    "trade_date": self.datetime.datetime(0),
-                })
-                logger.debug('{} 订单{} 已卖出 {}, 卖出金额 {:.2f}, 数量 {}, 费用 {:.2f}, 手续费 {:.2f}'.
-                             format(self.datetime.date(), order.ref, order.data._name, order.executed.price, order.size,
-                                    -order.executed.price * order.size, order.executed.comm))
+                self.log(
+                    '%s: 执行做多, 价格: %.2f, 花费: %.2f, 手续费 %.2f,数量 %.2f' %
+                    (ColourTxtUtil.blue(symbol),
+                     order.executed.price,
+                     order.executed.value,
+                     order.executed.comm,
+                     order.executed.size,))
+            else:
+                self.log('%s: 执行做空, 价格: %.2f, 花费: %.2f, 手续费 %.2f 数量%.2f' %
+                         (ColourTxtUtil.blue(symbol),
+                          order.executed.price,
+                          order.executed.value,
+                          order.executed.comm,
+                          order.executed.size))
         elif order.status in [order.Margin, order.Rejected]:
-            logger.warning('{} 订单{} 现金不足、金额不足拒绝交易', self.datetime.date(), order.ref)
+            self.log('{} 订单{} 现金不足、金额不足拒绝交易'.format(
+                ColourTxtUtil.blue(symbol),
+                ColourTxtUtil.blue(order.ref),
+            ))
         elif order.status in [order.Canceled]:
-            logger.debug("{} 订单{} 已取消", self.datetime.date(), order.ref)
-        elif order.status in [order.Expired]:
-            logger.warning('{} 订单{} 超过有效期已取消, 订单开价 {}, 当天最高价{}, 最低价{}', self.datetime.date(),
-                           order.ref, order.price,
-                           order.data.high[0], order.data.low[0])
+            self.log('{} 订单{} 已取消'.format(
+                ColourTxtUtil.blue(symbol),
+                ColourTxtUtil.blue(order.Status[order.ref]),
+            ))
 
-# self.buy(
-#     data=self.getdatabyname(stock_name), # 针对哪一个股票代码
-#     size=100, # 数量
-#     price=self.getdatabyname(stock_name).close[0], # 以当天的收盘价购买
-#     exectype=bt.Order.Limit, # 限价单
-#     valid=self.getdatabyname(stock_name).datetime.date(1),  # 有效期1天
-# )
+        elif order.status in [order.Expired]:
+            self.log('{} 订单{} 超过有效期已取消, 订单开价 {}, 当天最高价{}, 最低价{}'.format(
+                ColourTxtUtil.blue(symbol),
+                ColourTxtUtil.blue(order.Status[order.ref]),
+                order.price,
+                order.data.high[0],
+                order.data.low[0]
+            ))
+
+    def show_trade_info(self):
+        """
+        交易信息
+        :return:
+        """
+        # 显示账户信息
+        account = ConsoleFormatUtil.account_str(self.broker)
+        self.log(account)
+        # 显示订单信息：
+
+        # 显示资产信息
+        for klines in self.datas:
+            position = self.getposition(klines)
+            position_str = ConsoleFormatUtil.position_str(position, klines)
+            self.log(position_str)
+
+        # 显示行情数据
+        for klines in self.datas:
+            klines_str = ConsoleFormatUtil.klines_srt(klines)
+            self.log(klines_str)
+
+    def fetch_cash(self):
+        return self.broker.get_cash() - self.order_value
+
+    def fetch_klines(self, symbol):
+        if symbol not in self.symbols:
+            return None
+
+        return self.symbols[symbol]
+
+    def fetch_symbols(self):
+        return list(self.symbols.keys())
+
+    def fetch_positions(self):
+        positions = {}
+
+        for symbol, klines in self.symbols.items():
+            positions[symbol] = self.getposition(klines)
+        return positions
