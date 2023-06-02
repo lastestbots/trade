@@ -34,6 +34,7 @@ class OrderType(Enum):
 
 class AnalyzerType(Enum):
     ConsoleAnalyzer = 'ConsoleAnalyzer'
+    PyfolioReportAnalyzer = 'PyfolioReportAnalyzer'
 
     @property
     def target_class(self):
@@ -42,6 +43,5 @@ class AnalyzerType(Enum):
     @staticmethod
     def value_of(analyzer):
         return AnalyzerType[analyzer]
-
 
 
