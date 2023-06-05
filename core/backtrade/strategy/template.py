@@ -9,10 +9,12 @@ from core.utils.date_util import DateFormat
 
 class TemplateStrategy(bt.Strategy):
     logger = print
+    strategy_name = ''
 
     def __init__(self):
         self.symbols = {}
         self.orders = {}
+        self.log(ColourTxtUtil.red(self.strategy_name), islog=True)
         for klines in self.datas:
             symbol = SymbolUtil.klines_symbol(klines)
             self.symbols[symbol] = klines
@@ -23,6 +25,19 @@ class TemplateStrategy(bt.Strategy):
     def next(self):
         """最核心的触发策略"""
         raise
+
+    def notify_trade(self, trade):
+
+        if not trade.isclosed:
+            return
+        symbol = SymbolUtil.trade_symbol(trade)
+        data_str = self.datetime.datetime().strftime(DateFormat.YMDHMS)
+
+        log_info = '%s %s %s  净利润 %.2f' % (
+            ColourTxtUtil.green('平仓'),
+            ColourTxtUtil.blue(symbol),
+            data_str, trade.pnl)
+        self.log(log_info)
 
     def log(self, text, islog=False):
         if TradeConfig.is_show_trade_log or islog:
