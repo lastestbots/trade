@@ -10,7 +10,7 @@ from core.utils.date_util import DateFormat
 class TemplateStrategy(bt.Strategy):
     logger = print
     strategy_name = ''
-
+    trade_free_cost = 0
     def __init__(self):
         self.symbols = {}
         self.orders = {}
@@ -61,6 +61,7 @@ class TemplateStrategy(bt.Strategy):
                      order.executed.value,
                      order.executed.comm,
                      order.executed.size,))
+                self.trade_free_cost += order.executed.comm
             else:
                 self.log('%s: %s 执行做空, 价格: %.2f, 花费: %.2f, 手续费 %.2f 数量%.2f' %
                          (ColourTxtUtil.blue(symbol),
@@ -69,6 +70,7 @@ class TemplateStrategy(bt.Strategy):
                           order.executed.value,
                           order.executed.comm,
                           order.executed.size))
+                self.trade_free_cost += order.executed.comm
         elif order.status in [order.Margin, order.Rejected]:
             self.log('{} {} 订单{} 现金不足、金额不足拒绝交易'.format(
                 ColourTxtUtil.blue(symbol),
@@ -131,3 +133,6 @@ class TemplateStrategy(bt.Strategy):
         for symbol, klines in self.symbols.items():
             positions[symbol] = self.getposition(klines)
         return positions
+
+    def stop(self):
+        self.log(ColourTxtUtil.red('手续费 ') + self.trade_free_cost)

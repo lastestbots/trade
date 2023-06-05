@@ -50,6 +50,7 @@ class HighFrequencyStrategy(TemplateStrategy):
 
     def next(self):
         # self.show_trade_info()
+        risk = 1
         for klines in self.datas:
             indicator = SupportResistanceIndicator()
             indicator.calc(klines)
@@ -67,6 +68,7 @@ class HighFrequencyStrategy(TemplateStrategy):
             else:
                 profit = CalculatorUtil.position_profit(position, klines.close[0])
 
-                if profit > 0.03 or profit < -0.015:
+                if profit > 5 or profit < -1 :
+
                     self.log(ConsoleFormatUtil.position_str(position, klines))
                     self.close(data=klines)
