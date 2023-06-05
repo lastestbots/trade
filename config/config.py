@@ -107,3 +107,5 @@ class TradeConfig:
     # 资源位置
     resource_path = RESOURCE_PATH
     pyfolio_template_path = PYFOLIO_TEMPLATE_PATH
+
+

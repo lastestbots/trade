@@ -1,5 +1,6 @@
 import backtrader as bt
 
+from config.config import TradeConfig
 from core.backtrade.utils.format import ConsoleFormatUtil
 from core.backtrade.utils.symbol import SymbolUtil
 from core.utils.colour import ColourTxtUtil
@@ -23,8 +24,9 @@ class TemplateStrategy(bt.Strategy):
         """最核心的触发策略"""
         raise
 
-    def log(self, text):
-        self.logger(text)
+    def log(self, text, islog=False):
+        if TradeConfig.is_show_trade_log or islog:
+            self.logger(text)
 
     def notify_order(self, order):
         """通知订单状态,当订单状态变化时触发"""
@@ -74,8 +76,6 @@ class TemplateStrategy(bt.Strategy):
                 order.data.high[0],
                 order.data.low[0]
             ))
-
-
 
     def show_trade_info(self):
         """

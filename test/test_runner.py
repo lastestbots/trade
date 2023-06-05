@@ -5,6 +5,7 @@ from core.backtrade.strategy.feature import FeatureTradeStrategy
 from core.backtrade.strategy.rbreaker import RBreakerStrategy
 from core.backtrade.strategy.sma import SmaCross
 from core.backtrade.strategy.spot import SpotStrategy
+from core.backtrade.strategy.turtle import TurtleStrategy
 
 
 class TestStrategyRunner(unittest.TestCase):
@@ -39,4 +40,9 @@ class TestStrategyRunner(unittest.TestCase):
     def test_rbreaker_strategy(self):
         runner = StrategyRunner()
         runner.config.strategy = RBreakerStrategy
+        runner.run()
+
+    def test_turtle_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = TurtleStrategy
         runner.run()
