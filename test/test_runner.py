@@ -2,13 +2,12 @@ import unittest
 
 from core.backtrade.client.runner import StrategyRunner
 from core.backtrade.strategy.feature import FeatureTradeStrategy
+from core.backtrade.strategy.rbreaker import RBreakerStrategy
 from core.backtrade.strategy.sma import SmaCross
 from core.backtrade.strategy.spot import SpotStrategy
 
 
 class TestStrategyRunner(unittest.TestCase):
-
-
 
     def test_sma_strategy(self):
         """
@@ -35,4 +34,9 @@ class TestStrategyRunner(unittest.TestCase):
         """
         runner = StrategyRunner()
         runner.config.strategy = FeatureTradeStrategy
+        runner.run()
+
+    def test_rbreaker_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = RBreakerStrategy
         runner.run()

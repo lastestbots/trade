@@ -11,9 +11,11 @@ class TemplateStrategy(bt.Strategy):
 
     def __init__(self):
         self.symbols = {}
+        self.orders = {}
         for klines in self.datas:
             symbol = SymbolUtil.klines_symbol(klines)
             self.symbols[symbol] = klines
+            self.orders[symbol] = []
 
         self.order_value = 0
 
@@ -28,45 +30,52 @@ class TemplateStrategy(bt.Strategy):
         """通知订单状态,当订单状态变化时触发"""
 
         symbol = SymbolUtil.order_symbol(order)
-        data_str = self.datetime.datetime().strftime(DateFormat.YMDHMS)
-        symbol = data_str + ' ' + symbol
+
         if order.status in [order.Submitted, order.Accepted]:  # 接受订单交易，正常情况
             return
+        data_str = self.datetime.datetime().strftime(DateFormat.YMDHMS)
         if order.status in [order.Completed]:
             if order.isbuy():
                 self.log(
-                    '%s: 执行做多, 价格: %.2f, 花费: %.2f, 手续费 %.2f,数量 %.2f' %
+                    '%s: %s 执行做多, 价格: %.2f, 花费: %.2f, 手续费 %.2f,数量 %.2f' %
                     (ColourTxtUtil.blue(symbol),
+                     data_str,
                      order.executed.price,
                      order.executed.value,
                      order.executed.comm,
                      order.executed.size,))
             else:
-                self.log('%s: 执行做空, 价格: %.2f, 花费: %.2f, 手续费 %.2f 数量%.2f' %
+                self.log('%s: %s 执行做空, 价格: %.2f, 花费: %.2f, 手续费 %.2f 数量%.2f' %
                          (ColourTxtUtil.blue(symbol),
+                          data_str,
                           order.executed.price,
                           order.executed.value,
                           order.executed.comm,
                           order.executed.size))
         elif order.status in [order.Margin, order.Rejected]:
-            self.log('{} 订单{} 现金不足、金额不足拒绝交易'.format(
+            self.log('{} {} 订单{} 现金不足、金额不足拒绝交易'.format(
                 ColourTxtUtil.blue(symbol),
+                data_str,
                 ColourTxtUtil.blue(order.ref),
             ))
         elif order.status in [order.Canceled]:
-            self.log('{} 订单{} 已取消'.format(
+            self.log('{} {} 订单{} 已取消'.format(
                 ColourTxtUtil.blue(symbol),
+                data_str,
                 ColourTxtUtil.blue(order.Status[order.ref]),
             ))
 
         elif order.status in [order.Expired]:
-            self.log('{} 订单{} 超过有效期已取消, 订单开价 {}, 当天最高价{}, 最低价{}'.format(
+            self.log('{} {} 订单{} 超过有效期已取消, 订单开价 {}, 当天最高价{}, 最低价{}'.format(
                 ColourTxtUtil.blue(symbol),
+                data_str,
                 ColourTxtUtil.blue(order.Status[order.ref]),
                 order.price,
                 order.data.high[0],
                 order.data.low[0]
             ))
+
+
 
     def show_trade_info(self):
         """

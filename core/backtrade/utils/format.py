@@ -1,5 +1,6 @@
 import backtrader as bt
 
+from core.backtrade.utils.calculator import CalculatorUtil
 from core.backtrade.utils.symbol import SymbolUtil
 from core.utils.colour import ColourTxtUtil
 
@@ -64,13 +65,7 @@ class ConsoleFormatUtil:
     def position_str(position, klines):
         symbol = SymbolUtil.klines_symbol(klines)
         price = klines.close[0]
-        if position.price > 0:
-            profit = (price - position.price) / position.price * 100
-        elif position.price < 0:
-
-            profit = 0 - (abs(position.price) - price) / abs(position.price) * 100
-        else:
-            profit = 0
+        profit = CalculatorUtil.position_profit(position, price)
 
         return "{} {} {}: {} {}:{} {}：{} {}：{} %".format(ColourTxtUtil.green("资产"),
                                                          ColourTxtUtil.cyan(symbol),
@@ -82,6 +77,8 @@ class ConsoleFormatUtil:
                                                          position.size * position.price,
                                                          ColourTxtUtil.blue("Profit"),
                                                          round(profit), 2)
+
+
 
     @staticmethod
     def command_str():

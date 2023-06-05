@@ -12,6 +12,10 @@ pip install -r .\requirements.txt
 
 ### 代理配置
 
+``` 
+keyword['proxies'] = {'http':'htt://127.0.0.1:7890','https':'htt://127.0.0.1:7890'}
+```
+
 ![img.png](img.png)
 
 ### 配置
@@ -30,6 +34,7 @@ pip install -r .\requirements.txt
 - 策略
     - 模拟现货交易
     - 模拟期货交易
+    - BREAKER策略
 - 回测
     - 控制台显示分析报告
     - 生成财务分析报告
@@ -71,6 +76,26 @@ client.run()
 
 - 运行结果
   ![img_3.png](img_3.png)
+
+### RBEAKER 策略
+```python
+
+import unittest
+
+from core.backtrade.client.runner import StrategyRunner
+from core.backtrade.strategy.rbreaker import RBreakerStrategy
+
+
+
+class TestStrategyRunner(unittest.TestCase):
+
+    def test_rbreaker_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = RBreakerStrategy
+        runner.run()
+
+```
+![img_8.png](img_8.png)
 
 ## 回测结果分析
 
