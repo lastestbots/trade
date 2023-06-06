@@ -77,6 +77,19 @@ class StrategyRunner:
         cerebro.broker.setcommission(commission=config.account_fee)
         # 设置运行策略
         cerebro.addstrategy(strategy=config.strategy)
+        # 设置最大使用的杠杆比例
+
+        # for symbol in config.trade_symbols:
+        #     cerebro.broker.setcommission(
+        #         commission=0.00017 * 1000.0 * config.fundusage / 2,
+        #         # 必须为1，原因不说了
+        #         margin=1,
+        #         # 不同货币的保证金可以使用公式计算得出
+        #         automargin=1000,
+        #         # 100是杠杆的倍数，1000固定
+        #         mult=1000.0 * config.fundusage,
+        #         name=symbol)  # 设定此方案分配给那个货币对使用
+
         self.cerebro = cerebro
         # 加载数据
         self.load_data()

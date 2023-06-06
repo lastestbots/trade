@@ -25,6 +25,10 @@ _ohlv_head = ["Time", "Open", "Close", "High", "Low", "Volume"]
 
 class OhlvUtil:
     @staticmethod
+    def fetch_exchange_symbols(current: str = 'USDT'):
+        return CCtxAdapter.query_symbols(current)
+
+    @staticmethod
     def load_ohlv_as_pd(symbol: str, timeframe: str, start: dt.datetime = None,
                         end: dt.datetime = None) -> pd.DataFrame:
         logger.debug("加载数据 {}_{}".format(symbol, timeframe))

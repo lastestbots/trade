@@ -20,9 +20,10 @@ class TurtleStrategy(TemplateStrategy):
     )
 
     def __init__(self):
+        self.strategy_name = '唐奇安通道策略'
         super().__init__()
         self.indicators = {}
-        self.log(ColourTxtUtil.red("唐奇安通道策略"),islog=True)
+
 
         for klines in self.datas:
             # 第一个标的沪深300主力合约的close、high、low 行情数据

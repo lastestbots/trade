@@ -45,8 +45,8 @@ class RBreakerIndicator:
 class RBreakerStrategy(TemplateStrategy):
     params = (
 
-        ('profit_target', 0.06),
-        ('stop_loss', 0.02),
+        ('profit_target', 6),
+        ('stop_loss', -2),
     )
 
     def __init__(self):
@@ -77,7 +77,7 @@ class RBreakerStrategy(TemplateStrategy):
         if position.size != 0:
 
             profit = CalculatorUtil.position_profit(position, klines.close[0])
-            if profit > self.p.profit_target or profit > self.p.profit_target:
+            if profit >= self.p.profit_target or profit <= self.p.stop_loss:
                 self.close(data=klines)
                 return
             if position.size > 0:

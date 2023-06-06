@@ -1,11 +1,12 @@
 import os
+import warnings
 from configparser import ConfigParser
 from datetime import datetime
 
 from core.model.enums import AnalyzerType
 from core.utils.date_util import DateUtil
 from init import fetch_app_path, fetch_default_config_path, fetch_pyfolio_template_path
-import warnings
+
 warnings.filterwarnings('ignore')
 # 读取配置文件
 CONFIG_FILENAME = './config.ini'
@@ -58,6 +59,8 @@ for TRADE_ANALYZER in CONFIG_TRADE_ANALYZERS:
 
 PYFOLIO_TEMPLATE_PATH = fetch_pyfolio_template_path()
 
+FUNDUASAGE = int(config.get('trade', 'fundusage'))
+
 
 class CcxtConfig:
     """
@@ -107,5 +110,5 @@ class TradeConfig:
     # 资源位置
     resource_path = RESOURCE_PATH
     pyfolio_template_path = PYFOLIO_TEMPLATE_PATH
-
-
+    # 使用的杠杆
+    fundusage = FUNDUASAGE

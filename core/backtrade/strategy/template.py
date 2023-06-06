@@ -9,20 +9,36 @@ from core.utils.date_util import DateFormat
 
 class TemplateStrategy(bt.Strategy):
     logger = print
+    strategy_name = ''
+    trade_free_cost = 0
 
     def __init__(self):
         self.symbols = {}
-        self.orders = {}
+        # self.orders = {}
+        self.log(ColourTxtUtil.red(self.strategy_name), islog=True)
         for klines in self.datas:
             symbol = SymbolUtil.klines_symbol(klines)
             self.symbols[symbol] = klines
-            self.orders[symbol] = []
+            # self.orders[symbol] = []
 
         self.order_value = 0
 
     def next(self):
         """最核心的触发策略"""
         raise
+
+    def notify_trade(self, trade):
+
+        if not trade.isclosed:
+            return
+        symbol = SymbolUtil.trade_symbol(trade)
+        data_str = self.datetime.datetime().strftime(DateFormat.YMDHMS)
+
+        log_info = '%s %s %s  净利润 %.2f' % (
+            ColourTxtUtil.green('平仓'),
+            ColourTxtUtil.blue(symbol),
+            data_str, trade.pnl)
+        self.log(log_info)
 
     def log(self, text, islog=False):
         if TradeConfig.is_show_trade_log or islog:
@@ -46,6 +62,7 @@ class TemplateStrategy(bt.Strategy):
                      order.executed.value,
                      order.executed.comm,
                      order.executed.size,))
+                self.trade_free_cost += order.executed.comm
             else:
                 self.log('%s: %s 执行做空, 价格: %.2f, 花费: %.2f, 手续费 %.2f 数量%.2f' %
                          (ColourTxtUtil.blue(symbol),
@@ -54,6 +71,7 @@ class TemplateStrategy(bt.Strategy):
                           order.executed.value,
                           order.executed.comm,
                           order.executed.size))
+                self.trade_free_cost += order.executed.comm
         elif order.status in [order.Margin, order.Rejected]:
             self.log('{} {} 订单{} 现金不足、金额不足拒绝交易'.format(
                 ColourTxtUtil.blue(symbol),
@@ -116,3 +134,12 @@ class TemplateStrategy(bt.Strategy):
         for symbol, klines in self.symbols.items():
             positions[symbol] = self.getposition(klines)
         return positions
+
+    def stop(self):
+        self.log("{} {}".format(ColourTxtUtil.red('手续费 '), self.trade_free_cost))
+
+    def fetch_order(self, symbol):
+        for order in self.broker.orders:
+            if symbol == SymbolUtil.order_symbol(order) and order.status in [order.Submitted, order.Accepted]:
+                return order
+        return None
