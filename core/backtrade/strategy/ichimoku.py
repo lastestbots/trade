@@ -1,58 +1,139 @@
-# K线图中的一目均衡指标是一种基于移动平均线的技术指标，由日本的书籍作者森永卓郎提出，也叫做Ichimoku Cloud（云图）。它的计算公式如下：
-#
-# 1. 转换线（Tenkan-Sen）= （9日高点的总和 / 9）和（9日低点的总和 / 9）的平均值
-# 2. 基准线（Kijun-Sen）= （26日高点的总和 / 26）和（26日低点的总和 / 26）的平均值
-# 3. 前推26天的基准线
-# 4. 主极限线（Chikou Span）= 当前收盘价与前推26天的收盘价连接形成的线
-# 5. 前期高点（上周期内的最高价）与前期低点（上周期内的最低价）。前期高点为当天前22日中的最高价，前期低点为当天前22天中的最低价。
-# 6. 密集云（Kumo）：由两个移动平均线形成，将前期高点与前期低点关于纵坐标对称，然后连接两线。其中，红色的是先行偏差线（Senkou Span A），蓝色的是滞后线（Senkou Span B）。
-#
+from core.backtrade.strategy.template import TemplateStrategy
+from core.backtrade.utils.calculator import CalculatorUtil
+from core.backtrade.utils.format import ConsoleFormatUtil
+from core.backtrade.utils.symbol import SymbolUtil
+from core.utils.colour import ColourTxtUtil
 
-import tushare
 
-print(tushare.__version__)
-import tushare as ts
-
-ts.get_hist_data('600848') #一次性获取全部日k线数据
 class IchimokuIndicator:
+    """
+    转换线 = （9天内的最高价 + 9天内的最低价）/ 2
+
+    计算基准线（Kijun-sen）的公式为：
+
+    基准线 = （26天内的最高价 + 26天内的最低价）/ 2
+
+    计算云图（Senkou Span A 和 Senkou Span B）的公式为：
+
+    Senkou Span A = （转换线 + 基准线）/ 2，向右平移26个交易日
+
+    Senkou Span B = （52天内的最高价 + 52天内的最低价）/ 2，向右平移26个交易日
+
+    计算滞后线（Lagging Span）的公式为：
+
+    滞后线 = 当前收盘价，向左平移26个交易日
+
+    计算前期高低点的平均线（Chikou Span）的公式为：
+
+    前期高低点的平均线 = 当前收盘价，向左平移26个交易日
+    """
     # 转换线周期
     tenkan_period = 9
     # 基准周期
     kijun_period = 26
-    # 转换线
-    tenkan_sen = None
+    senkou_span_a_period = 26
+    senkou_span_b_period = 52
     # 基准线
+    tenkan_sen = None
+
+    # 转换线
     kijun_sen = None
-    # 主极限线
-    chikou_span = None
-    # 密集云
-    kumo = None
+    # 云图 a
+    senkou_span_a = None
+    # 云图 b
+    senkou_span_b = None
 
     def calculate(self, klines):
         tenkan_period = self.tenkan_period
-        if len(klines.high.get(size=tenkan_period)) < tenkan_period:
+        kijun_period = self.kijun_period
+        senkou_span_a_period = self.senkou_span_a_period
+        senkou_span_b_period = self.senkou_span_b_period
+        if len(klines.high.get(
+                size=senkou_span_b_period + senkou_span_a_period)) < senkou_span_b_period + senkou_span_a_period:
             return
         # 最高价
+        tenkan_arr = sorted(klines.high.get(size=tenkan_period), reverse=True)
+        self.tenkan_sen = (tenkan_arr[0] + tenkan_arr[-1]) / 2
+        kijun_arr = sorted(klines.high.get(size=kijun_period), reverse=True)
+        self.kijun_sen = (kijun_arr[0] + kijun_arr[-1]) / 2
+        self.senkou_span_a = []
+        self.senkou_span_b = []
+        for i in range(senkou_span_a_period):
+            ago = -senkou_span_a_period + i
+            tenkan_arr = sorted(klines.high.get(ago=ago, size=tenkan_period), reverse=True)
+            kijun_arr = sorted(klines.high.get(ago=ago, size=kijun_period), reverse=True)
+            senkou_span_a = (tenkan_arr[0] + tenkan_arr[-1] + kijun_arr[0] + kijun_arr[-1]) / 4
+            self.senkou_span_a.append(senkou_span_a)
+            senkou_span_b = sorted(klines.high.get(ago=ago, size=senkou_span_b_period), reverse=True)
+            self.senkou_span_b.append((senkou_span_b[0] + senkou_span_b[-1]) / 2)
 
-        tenkan_ = sorted(klines.high.get(size=tenkan_period), reverse=True)
 
-        # 最低价
-        tenkan_l = klines.low.get(size=tenkan_period)
+class IchimokuStrategy(TemplateStrategy):
 
-        # # 前一日收盘价
-        # pc = klines.close.get(size=2)[0]
-        #
-        # pivot = (pc + pl + ph) / 3
-        #
-        # # 第一组 突破买入价 全场最高
-        # self.b_break = ph + 2 * (pivot - pl)
-        # # 第二组 观察卖出价 多单叛变条件1
-        # self.s_setup = pivot + (ph - pl)
-        # # 第二组 反转卖出价 多单叛变条件2
-        # self.s_enter = 2 * pivot - pl
-        # # 第三组 反转买入价 空单叛变条件2
-        # self.b_enter = 2 * pivot - ph
-        # # 第三组 观察买入价 空单叛变条件1
-        # self.b_setup = pivot - (ph - pl)
-        # # 第一组 突破卖出价 全场最低
-        # self.s_break = pl - 2 * (ph - pivot)
+    def __init__(self):
+        self.strategy_name = '一目均衡图策略'
+        super().__init__()
+        self.stop_loss = -2
+        self.take_profit = 5
+
+    def next(self):
+        self.order_value = 0
+
+        for klines in self.datas:
+            # 交易信号
+
+            # 仓位
+            position = self.getposition(klines)
+            # 股票
+            symbol = SymbolUtil.klines_symbol(klines)
+            # 订单大小
+            order_size = (self.fetch_cash() / klines.high[0]) * (1.0 / len(self.symbols)) * 0.97
+            # 指标
+            indicator = IchimokuIndicator()
+            indicator.calculate(klines)
+            if indicator.senkou_span_b is None:
+                continue
+                # k线数据
+            p_high = klines.high
+            p_low = klines.low
+            p_open = klines.open
+            p_close = klines.close
+            average = (p_open[0] + p_low[0] + p_high[0]) / 3
+            # 做多信号
+            buy_sign = False
+            if average > indicator.kijun_period:
+                buy_sign = True
+            # 做空信号
+            sell_sign = False
+            if average < indicator.kijun_period:
+                sell_sign = False
+
+            # 交易规则
+            if position.size == 0:
+                if buy_sign:
+                    self.buy(data=klines, size=order_size)
+                elif sell_sign:
+                    self.sell(data=klines, size=order_size)
+            else:
+                profit = CalculatorUtil.position_profit(position, p_close)
+                if profit > self.take_profit:
+                    self.log(
+                        "{} \n{}\n{}".format(ColourTxtUtil.red('触发止盈'),
+                                             ConsoleFormatUtil.position_str(position, klines),
+                                             ConsoleFormatUtil.klines_srt(klines)))
+                    self.close(data=klines)
+                elif profit < self.stop_loss:
+                    self.log(
+                        "{} \n{}\n{}".format(ColourTxtUtil.red('触发止损'),
+                                             ConsoleFormatUtil.position_str(position, klines),
+                                             ConsoleFormatUtil.klines_srt(klines)))
+
+                    self.close(data=klines)
+                elif position.size > 0 and sell_sign:
+                    self.close(data=klines)
+                    self.sell(data=klines, size=order_size)
+                    self.log("{} 触发卖信号,反手做空".format(symbol))
+                elif position.size < 0 and buy_sign:
+                    self.close(data=klines)
+                    self.buy(data=klines, size=order_size)
+                    self.log("{} 触发买信号,反手做多".format(symbol))
