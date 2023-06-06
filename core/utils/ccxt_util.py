@@ -77,13 +77,11 @@ class OhlvUtil:
 
         if os.path.exists(filepath):
             # 读取最新时间
-            with open(filepath, 'r') as file:
-                reader = csv.reader(file)
-                rows = list(reader)
-                last_row = rows[-1]
-                since = DateUtil.format_to_timestamp(last_row[0]) * 1000 + interval_second[timeframe] * 1000
-                logger.info(
-                    "下载数据 本地最新数据 {}".format(DateUtil.timestamp_to_format(since / 1000)))
+            klines = pd.read_csv(filepath, parse_dates=True, skiprows=0, header=0)
+            last_row = klines.tail(1)
+            since = DateUtil.format_to_timestamp(last_row['Time'].iloc[0]) * 1000 + interval_second[timeframe] * 1000
+            logger.info(
+                "下载数据 本地最新数据 {}".format(DateUtil.timestamp_to_format(since / 1000)))
         if since is None:
             since = CCtxAdapter.query_begin_timestamp(symbol)
         limit = 300
