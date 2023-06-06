@@ -22,7 +22,6 @@ client = ccxt.binance(config)
 client.enableRateLimit = True
 
 
-
 class ExchangeFactory:
     @staticmethod
     def get_exchange():
@@ -135,13 +134,11 @@ class CCtxAdapter:
 
     @staticmethod
     def create_market_buy_order(symbol: str, amount: float):
-
         order_info = ExchangeFactory.get_exchange().create_market_buy_order(symbol, amount)
         pass
 
     @staticmethod
     def create_market_sell_order(symbol: str, amount, price):
-
         order_info = ExchangeFactory.get_exchange().create_market_sell_order(symbol, amount)
         pass
 
@@ -160,3 +157,15 @@ class CCtxAdapter:
         logger.debug("symbol {} start_time {}".format(symbol, start_time))
 
         return ohlcv[0].timestamp
+
+    @staticmethod
+    def query_symbols(current: str = 'USDT'):
+        ExchangeFactory.get_exchange().load_markets()
+        symbols = []  # same as previous line
+        for symbol in list(client.markets.keys()):
+            symbol = str(symbol)
+            if symbol.endswith(current) and symbol.count(':') == 0:
+                symbols.append(symbol)
+        return symbols
+
+

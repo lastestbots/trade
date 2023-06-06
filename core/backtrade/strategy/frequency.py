@@ -3,6 +3,8 @@ import backtrader as bt
 from core.backtrade.strategy.template import TemplateStrategy
 from core.backtrade.utils.calculator import CalculatorUtil
 from core.backtrade.utils.format import ConsoleFormatUtil
+from core.backtrade.utils.symbol import SymbolUtil
+from core.utils.colour import ColourTxtUtil
 
 
 class SupportResistanceIndicator:
@@ -50,25 +52,42 @@ class HighFrequencyStrategy(TemplateStrategy):
 
     def next(self):
         # self.show_trade_info()
-        risk = 1
+
         for klines in self.datas:
             indicator = SupportResistanceIndicator()
             indicator.calc(klines)
             if indicator.resistence is None:
                 return
-
+            symbol = SymbolUtil.klines_symbol(klines)
             cash = self.fetch_cash() / len(self.symbols)
             position = self.getposition(klines)
-
+            # order = self.fetch_order(symbol)
+            # if order is not None:
+            #     continue
             if position.size == 0:
                 if indicator.buy_sign:
                     self.buy(data=klines, size=cash / klines.close[0] * 0.98, exectype=bt.Order.Market)
+
                 elif indicator.sell_sign:
                     self.sell(data=klines, size=cash / klines.close[0] * 0.98, exectype=bt.Order.Market)
+
             else:
                 profit = CalculatorUtil.position_profit(position, klines.close[0])
 
-                if profit > 5 or profit < -1 :
-
-                    self.log(ConsoleFormatUtil.position_str(position, klines))
+                if profit > 10:
+                    self.log(
+                        "{} {}".format(ColourTxtUtil.red('触发止盈'),
+                                       ConsoleFormatUtil.position_str(position, klines)))
                     self.close(data=klines)
+                elif profit < -5:
+                    self.log(
+                        "{} {}".format(ColourTxtUtil.red('触发止损'),
+                                       ConsoleFormatUtil.position_str(position, klines)))
+                    self.close(data=klines)
+                elif indicator.buy_sign and position.price < 0:
+                    self.close(data=klines, )
+                elif indicator.sell_sign and position.price > 0:
+                    self.sell(data=klines)
+
+    def stop(self):
+        self.log("{} {}".format(ColourTxtUtil.red('手续费 '), self.trade_free_cost), islog=True)

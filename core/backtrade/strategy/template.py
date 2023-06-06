@@ -11,14 +11,15 @@ class TemplateStrategy(bt.Strategy):
     logger = print
     strategy_name = ''
     trade_free_cost = 0
+
     def __init__(self):
         self.symbols = {}
-        self.orders = {}
+        # self.orders = {}
         self.log(ColourTxtUtil.red(self.strategy_name), islog=True)
         for klines in self.datas:
             symbol = SymbolUtil.klines_symbol(klines)
             self.symbols[symbol] = klines
-            self.orders[symbol] = []
+            # self.orders[symbol] = []
 
         self.order_value = 0
 
@@ -135,4 +136,10 @@ class TemplateStrategy(bt.Strategy):
         return positions
 
     def stop(self):
-        self.log(ColourTxtUtil.red('手续费 ') + self.trade_free_cost)
+        self.log("{} {}".format(ColourTxtUtil.red('手续费 '), self.trade_free_cost))
+
+    def fetch_order(self, symbol):
+        for order in self.broker.orders:
+            if symbol == SymbolUtil.order_symbol(order) and order.status in [order.Submitted, order.Accepted]:
+                return order
+        return None
