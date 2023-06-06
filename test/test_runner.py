@@ -3,6 +3,7 @@ import unittest
 from core.backtrade.client.runner import StrategyRunner
 from core.backtrade.strategy.feature import FeatureTradeStrategy
 from core.backtrade.strategy.frequency import HighFrequencyStrategy
+from core.backtrade.strategy.ichimoku import IchimokuStrategy
 from core.backtrade.strategy.rbreaker import RBreakerStrategy
 from core.backtrade.strategy.sma import SmaCross
 from core.backtrade.strategy.spot import SpotStrategy
@@ -55,4 +56,13 @@ class TestStrategyRunner(unittest.TestCase):
         """
         runner = StrategyRunner()
         runner.config.strategy = HighFrequencyStrategy
+        runner.run()
+
+    def test_high_frequency_strategy(self):
+        """
+        测试基于一目均衡的策略
+        :return:
+        """
+        runner = StrategyRunner()
+        runner.config.strategy = IchimokuStrategy
         runner.run()

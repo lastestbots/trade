@@ -1,16 +1,24 @@
-### 依赖生成
+## 安装与配置
+
+- 依赖生成
 
 ```
 pip freeze > requirements.txt
 ```
 
-### 安装依赖
+- 下载
+
+```
+git clone https://github.com/lastestbots/trade.git
+```
+
+- 安装依赖
 
 ```
 pip install -r .\requirements.txt
 ```
 
-### 代理配置
+- VPN 配置
 
 ``` 
 keyword['proxies'] = {'http':'htt://127.0.0.1:7890','https':'htt://127.0.0.1:7890'}
@@ -18,13 +26,26 @@ keyword['proxies'] = {'http':'htt://127.0.0.1:7890','https':'htt://127.0.0.1:789
 
 ![img.png](img.png)
 
-### 配置
+- 配置文件
 
 ```
 配置文件读取
    优先读取 ./脚本目录路径/config.ini 
    默认读取 ./helper/config.ini  
-   配置文件 config/config.py 
+```
+
+- 运行
+
+```python
+from core.backtrade.client.runner import StrategyRunner
+from core.backtrade.strategy.rbreaker import RBreakerStrategy
+
+# 创建策略运行器
+runner = StrategyRunner()
+# 指定策略
+runner.config.strategy = RBreakerStrategy
+# 运行
+runner.run()
 ```
 
 ### 功能
@@ -35,76 +56,34 @@ keyword['proxies'] = {'http':'htt://127.0.0.1:7890','https':'htt://127.0.0.1:789
     - 模拟现货交易
     - 模拟期货交易
     - BREAKER策略
-- 回测
+    - 基于一目均衡策略
+- 分析器
     - 控制台显示分析报告
     - 生成财务分析报告
 
 ### 现货模拟交易
 
-- 默认配置文件运行
+- 加载历史数据, 在控制台输入指令,卖出股票操作
+- 结果
 
-```python 
-from core.backtrade.client.mock import SpotTradeClient
-# 初始化时候client的config,默认从配置文件中加载
-client = SpotTradeClient()
-# 运行
-client.run()
-
-
-# 通过修改client.config属性,修改运行参数
-
-```
-
-- 自定义参数
-
-```python
-from core.backtrade.client.mock import SpotTradeClient
-
-# 初始化时候client的config,默认从配置文件中加载
-client = SpotTradeClient()
-# config: TradeConfig
-# 交易股票
-client.config.trade_symbols = ['stock_name']
-# 初始金额
-client.config.trade_balance = 10000
-...
-...
-
-# 运行
-client.run()
-```
-
-- 运行结果
-  ![img_3.png](img_3.png)
-
-### RBEAKER 策略
-```python
-
-import unittest
-
-from core.backtrade.client.runner import StrategyRunner
-from core.backtrade.strategy.rbreaker import RBreakerStrategy
-
-
-
-class TestStrategyRunner(unittest.TestCase):
-
-    def test_rbreaker_strategy(self):
-        runner = StrategyRunner()
-        runner.config.strategy = RBreakerStrategy
-        runner.run()
-
-```
 ![img_8.png](img_8.png)
 
-## 回测结果分析
+### 一目均衡策略
 
-### 控制台输出财务分析
+- 参数
+  ![img_9.png](img_9.png)
+- 结果
+  ![img_10.png](img_10.png)
+
+## 分析器
+
+### 控制台分析
 
 - 配置文件中添加分析器 ConsoleAnalyzer
+  ![img_6.png](img_6.png)
 
-### 生成财务报告
+### 财务报告分析
 
 - 配置文件中添加分析器 PyfolioReportAnalyzer
 
-![img_6.png](img_6.png)
+![img_12.png](img_12.png)
