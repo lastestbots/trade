@@ -35,7 +35,7 @@ class ConsoleFormatUtil:
         )
 
     @staticmethod
-    def klines_srt(klines, index=0):
+    def klines_str(klines, index=0):
         symbol = SymbolUtil.klines_symbol(klines)
         date_str = bt.num2date(klines.lines[6][0])
         return "{} {} {}: {} {}: {} {}: {} {}: {} {}: {} {}:{} {}：{} %".format(

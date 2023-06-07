@@ -14,7 +14,11 @@ class RsiStrategy(TemplateStrategy):
         super().__init__()
         self.stop_loss = -2
         self.take_profit = 2
-        self.rsi = bt.indicators.RSI(period=31)
+
+        self.rsi_symbols = {}
+        for klines in self.datas:
+            symbol = SymbolUtil.klines_symbol(klines)
+            self.rsi_symbols[symbol] = bt.indicators.RSI(klines, period=31)
         # 加仓比列
         self.position_ratio = 0.01
 
@@ -37,10 +41,10 @@ class RsiStrategy(TemplateStrategy):
             average = (p_open[0] + p_low[0] + p_high[0]) / 3
             # 信号
             sign = 0
-            if self.rsi[0] < 10:
+            if self.rsi_symbols[symbol][0] < 10:
                 sign = 1
             sell_sign = False
-            if self.rsi[0] > 90:
+            if self.rsi_symbols[symbol][0] > 90:
                 sign = -1
 
             if position.size == 0:
@@ -58,25 +62,25 @@ class RsiStrategy(TemplateStrategy):
                     self.log(
                         "{} \n{}\n{}".format(ColourTxtUtil.red('触发止盈'),
                                              ConsoleFormatUtil.position_str(position, klines),
-                                             ConsoleFormatUtil.klines_srt(klines)))
+                                             ConsoleFormatUtil.klines_str(klines)))
                     self.close(data=klines)
                 elif profit < self.stop_loss:
                     if order_value >= enable_cash:
                         self.log(
                             "{} \n{}\n{}".format(ColourTxtUtil.red('触发止损'),
                                                  ConsoleFormatUtil.position_str(position, klines),
-                                                 ConsoleFormatUtil.klines_srt(klines)))
+                                                 ConsoleFormatUtil.klines_str(klines)))
                         self.close(data=klines)
                     elif position.size > 0 and sign < 0:
                         self.log(
                             "{} \n{}\n{}".format(ColourTxtUtil.red('触发止损 加仓做多'),
                                                  ConsoleFormatUtil.position_str(position, klines),
-                                                 ConsoleFormatUtil.klines_srt(klines)))
+                                                 ConsoleFormatUtil.klines_str(klines)))
 
                         self.buy(data=klines, size=size)
                     elif position.size <= 0 and sign > 0:
                         self.log(
                             "{} \n{}\n{}".format(ColourTxtUtil.red('触发止损 加仓做空'),
                                                  ConsoleFormatUtil.position_str(position, klines),
-                                                 ConsoleFormatUtil.klines_srt(klines)))
+                                                 ConsoleFormatUtil.klines_str(klines)))
                         self.sell(data=klines, size=size)

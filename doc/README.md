@@ -32,6 +32,7 @@ keyword['proxies'] = {'http':'htt://127.0.0.1:7890','https':'htt://127.0.0.1:789
 配置文件读取
    优先读取 ./脚本目录路径/config.ini 
    默认读取 ./helper/config.ini  
+设置多时间周期,按照时间级别从小到大设置
 ```
 
 - 运行

@@ -73,7 +73,7 @@ class SpotStrategy(TemplateStrategy):
                 self.log(order_str)
 
     def show_klines_info(self, klines):
-        klines_str = ConsoleFormatUtil.klines_srt(klines)
+        klines_str = ConsoleFormatUtil.klines_str(klines)
         self.log(klines_str)
 
     def show_account_info(self):

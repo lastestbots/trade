@@ -6,7 +6,7 @@ from core.backtrade.strategy.frequency import HighFrequencyStrategy
 from core.backtrade.strategy.ichimoku import IchimokuStrategy
 from core.backtrade.strategy.rbreaker import RBreakerStrategy
 from core.backtrade.strategy.rsi import RsiStrategy
-from core.backtrade.strategy.sma import SmaCross
+from core.backtrade.strategy.sma import SmaStrategy
 from core.backtrade.strategy.spot import SpotStrategy
 from core.backtrade.strategy.turtle import TurtleStrategy
 from core.rpc.ccxt_adapter import CCtxAdapter
@@ -20,7 +20,7 @@ class TestStrategyRunner(unittest.TestCase):
         :return:
         """
         runner = StrategyRunner()
-        runner.config.strategy = SmaCross
+        runner.config.strategy = SmaStrategy
         runner.run()
 
     def test_spot_strategy(self):

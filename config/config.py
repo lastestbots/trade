@@ -32,7 +32,7 @@ if CCXT_SECRET == 'None':
 TRADE_BALANCE = float(config.get('trade', 'balance'))
 TRADE_FEE = float(config.get('trade', 'fee'))
 TRADE_SYMBOLS = config.get('trade', 'symbols').split(',')
-TRADE_TIMEFRAME = config.get('trade', 'timeframe')
+TRADE_TIMEFRAMES = config.get('trade', 'timeframes').split(',')
 TRADE_FROM_TIME = config.get('trade', 'from_time')
 TRADE_TO_TIME = config.get('trade', 'to_time')
 if TRADE_TO_TIME == 'None':
@@ -93,7 +93,7 @@ class TradeConfig:
     # 交易股票
     trade_symbols = TRADE_SYMBOLS
     # 时间级别
-    trade_timeframe: str = TRADE_TIMEFRAME
+    trade_timeframes = TRADE_TIMEFRAMES
     # 交易开始
     trade_from_time: datetime = TRADE_FROM_TIME
     # 交易结束

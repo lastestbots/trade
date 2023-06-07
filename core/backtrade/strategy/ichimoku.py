@@ -120,13 +120,13 @@ class IchimokuStrategy(TemplateStrategy):
                     self.log(
                         "{} \n{}\n{}".format(ColourTxtUtil.red('触发止盈'),
                                              ConsoleFormatUtil.position_str(position, klines),
-                                             ConsoleFormatUtil.klines_srt(klines)))
+                                             ConsoleFormatUtil.klines_str(klines)))
                     self.close(data=klines)
                 elif profit < self.stop_loss:
                     self.log(
                         "{} \n{}\n{}".format(ColourTxtUtil.red('触发止损'),
                                              ConsoleFormatUtil.position_str(position, klines),
-                                             ConsoleFormatUtil.klines_srt(klines)))
+                                             ConsoleFormatUtil.klines_str(klines)))
 
                     self.close(data=klines)
                 elif position.size > 0 and sell_sign:

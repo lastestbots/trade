@@ -113,7 +113,7 @@ class TemplateStrategy(bt.Strategy):
 
         # 显示行情数据
         for klines in self.datas:
-            klines_str = ConsoleFormatUtil.klines_srt(klines)
+            klines_str = ConsoleFormatUtil.klines_str(klines)
             self.log(klines_str)
 
     def fetch_cash(self):

@@ -46,15 +46,24 @@ class StrategyRunner:
         for analyzer in config.analyzers:
             analyzer.target_class.execute(cerebro, self.config)
 
-    def load_data(self) -> dict:
+    def load_data(self):
         config = self.config
         self.klines = {}
         for symbol in config.trade_symbols:
-            self.klines[symbol] = OhlvUtil.load_ohlv_as_pd(symbol=symbol,
-                                                           timeframe=config.trade_timeframe,
-                                                           start=config.trade_from_time,
-                                                           end=config.trade_to_time)
-        return self.klines
+            self.klines[symbol] = []
+
+            for timeframe in config.trade_timeframes:
+                klines = OhlvUtil.load_ohlv_as_pd(symbol=symbol, timeframe=timeframe, start=config.trade_from_time,
+                                                  end=config.trade_to_time)
+                klines['Time'] = pd.to_datetime(klines['Time'])
+                klines.set_index('Time', inplace=True)
+
+                self.klines[symbol].append(klines)
+
+                self.cerebro.adddata(data=CCxtPdData(dataname=klines),
+                                     name=symbol + "_" + timeframe)
+
+        #
 
     def load_cerebro(self, config, is_reload=False):
         if self.cerebro is not None and not is_reload:
@@ -93,8 +102,5 @@ class StrategyRunner:
         self.cerebro = cerebro
         # 加载数据
         self.load_data()
-        for symbol, kline in self.klines.items():
-            kline['Time'] = pd.to_datetime(kline['Time'])
-            kline.set_index('Time', inplace=True)
-            cerebro.adddata(data=CCxtPdData(dataname=kline), name=symbol)
+
         return cerebro
