@@ -15,7 +15,8 @@ class OrderCommandConsoleUtil:
             log_func("{}:做多 {}：做空".format(ColourTxtUtil.red(OrderSide.Buy.command),
                                               ColourTxtUtil.red(OrderSide.Sell.command)))
             input_command = input("{}：".format(ColourTxtUtil.orange("订单方向："))).replace(' ', '').upper()
-
+            if input_command == 'BACK':
+                return
             if input_command == OrderSide.Sell.value:
                 return OrderSide.Sell
 
@@ -23,11 +24,13 @@ class OrderCommandConsoleUtil:
                 return OrderSide.Buy
 
     @staticmethod
-    def fetch_type() -> OrderType:
+    def fetch_type():
         while True:
             log_func("{}:市价 {}：限价".format(ColourTxtUtil.red(OrderType.Market.command),
                                               ColourTxtUtil.red(OrderType.Limit.command)))
             input_command = input("{}：".format(ColourTxtUtil.orange("订单类型："))).replace(' ', '').upper()
+            if input_command == 'BACK':
+                return
 
             if input_command == OrderType.Market.value or input_command == '':
                 return OrderType.Market
@@ -41,8 +44,11 @@ class OrderCommandConsoleUtil:
             log_func("{}: {}".format(ColourTxtUtil.red("Symbols:"),
                                      symbols))
             symbol = input("{}：".format(ColourTxtUtil.orange("购买股票："))).replace(' ', '').upper()
-
-            if symbol == '' and len(symbols) > 0:
+            if symbol == 'BACK':
+                return
+            if symbol.isdigit():
+                return symbols[int(symbol)]
+            elif symbol == '' and len(symbols) > 0:
 
                 return symbols[0]
             elif symbol in symbols:
@@ -57,7 +63,8 @@ class OrderCommandConsoleUtil:
             log_func("{}: {}".format(ColourTxtUtil.red("Symbols:"),
                                      symbols))
             symbol = input("{}：".format(ColourTxtUtil.orange("购买股票："))).replace(' ', '').upper()
-            if symbol.lower() == 'back':
+            
+            if symbol == 'BACK':
                 return
             if symbol == '' and len(symbols) > 0:
                 symbol = symbols[0]
@@ -78,6 +85,8 @@ class OrderCommandConsoleUtil:
         while True:
             input_command = input("{}：".format(ColourTxtUtil.orange("订单价格："))).replace(' ', '').lower()
             try:
+                if input_command == 'BACK':
+                    return
                 if input_command == '':
                     return 99
                 input_command = float(input_command)
@@ -98,6 +107,8 @@ class OrderCommandConsoleUtil:
             o_value = input("{}：".format(ColourTxtUtil.orange("购买金额："))).replace(' ',
                                                                                      '').lower()
             try:
+                if o_value == 'back':
+                    return
                 if o_value == '':
                     continue
                 elif o_value.endswith('%'):

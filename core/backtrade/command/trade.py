@@ -11,12 +11,15 @@ class BuyCommand:
     @staticmethod
     def execute(command, strategy):
         if BuyCommand.command != command:
-            return
+            return 0
 
         cash = strategy.fetch_cash()
         symbols = strategy.fetch_symbols()
         order = ConsoleOrderFactory.create_feature_order(cash, symbols)
+        if order.side is None or order.type is None or order.symbol is None or order.value is None:
+            return 0
         klines = strategy.fetch_klines(order.symbol)
+        strategy.buy(data=klines, size=1)
         if cash < order.value:
             strategy.log(ColourTxtUtil.red('余额不足'))
         if order.price <= 0:
@@ -30,6 +33,7 @@ class BuyCommand:
 
             if order.side.is_buy():
                 strategy.buy(data=klines, size=size)
+
             elif order.side.is_sell():
                 strategy.sell(data=klines, size=size)
         elif order.type.is_limit():
@@ -52,7 +56,7 @@ class SellCommand:
         symbols = strategy.fetch_symbols()
         positions = strategy.fetch_positions()
         order = ConsoleOrderFactory.create_sell_position_order(positions, symbols)
-        if order.value is None or order.symbol is None:
+        if order.symbol is None or order.value is None:
             return
         klines = strategy.fetch_klines(order.symbol)
         strategy.close(data=klines, size=order.value)

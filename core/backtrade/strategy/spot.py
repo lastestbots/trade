@@ -124,7 +124,9 @@ class SpotStrategy(TemplateStrategy):
 
     def execute_sell_command(self):
         order = ConsoleOrderFactory.create_feature_order(self.cash, self.symbols.keys())
-        # 检查是否有仓位
+        if order.side is None or order.type is None or order.symbol is None:
+            return
+            # 检查是否有仓位
         position = self.fetch_symbol_position(order.symbol)
         if position.size == 0:
             self.log('{}: {}未持仓'.format(ColourTxtUtil.red('Error'), order.symbol))
@@ -135,7 +137,9 @@ class SpotStrategy(TemplateStrategy):
 
     def execute_buy_command(self):
 
-        order = ConsoleOrderFactory.fetch_buy_by_console(self.log, list(self.symbols.keys()))
+        order = ConsoleOrderFactory.create_feature_order(self.log, list(self.symbols.keys()))
+        if order.side is None or order.type is None or order.symbol is None:
+            return
         klines = self.symbols[order.symbol]
         size = self.broker.get_cash() * 0.01 * order.ratio / klines.high[0]
         self.log("{}: {}".format(ColourTxtUtil.orange("金额"), size * klines.high[0]))

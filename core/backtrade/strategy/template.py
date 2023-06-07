@@ -94,26 +94,26 @@ class TemplateStrategy(bt.Strategy):
                 order.data.low[0]
             ))
 
-    def show_trade_info(self):
+    def show_trade_info(self, islog=False):
         """
         交易信息
         :return:
         """
         # 显示账户信息
         account = ConsoleFormatUtil.account_str(self.broker)
-        self.log(account)
+        self.log(account, islog=islog)
         # 显示订单信息：
 
         # 显示资产信息
         for klines in self.datas:
             position = self.getposition(klines)
             position_str = ConsoleFormatUtil.position_str(position, klines)
-            self.log(position_str)
+            self.log(position_str, islog=islog)
 
         # 显示行情数据
         for klines in self.datas:
             klines_str = ConsoleFormatUtil.klines_str(klines)
-            self.log(klines_str)
+            self.log(klines_str, islog=islog)
 
     def fetch_cash(self):
         return self.broker.get_cash() - self.order_value

@@ -1,6 +1,7 @@
 import unittest
 
 from core.backtrade.client.runner import StrategyRunner
+from core.backtrade.strategy.channel import ChannelStrategy
 from core.backtrade.strategy.feature import FeatureTradeStrategy
 from core.backtrade.strategy.frequency import HighFrequencyStrategy
 from core.backtrade.strategy.ichimoku import IchimokuStrategy
@@ -9,7 +10,6 @@ from core.backtrade.strategy.rsi import RsiStrategy
 from core.backtrade.strategy.sma import SmaStrategy
 from core.backtrade.strategy.spot import SpotStrategy
 from core.backtrade.strategy.turtle import TurtleStrategy
-from core.rpc.ccxt_adapter import CCtxAdapter
 
 
 class TestStrategyRunner(unittest.TestCase):
@@ -77,4 +77,9 @@ class TestStrategyRunner(unittest.TestCase):
         # runner.config.trade_symbols = symbols
         runner.config.strategy = RsiStrategy
 
+        runner.run()
+
+    def test_channel_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = ChannelStrategy
         runner.run()

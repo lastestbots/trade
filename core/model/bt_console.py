@@ -34,7 +34,11 @@ class ConsoleOrderFactory:
         """
         params = ConsoleOrderParam()
         params.side = OrderCommandConsoleUtil.fetch_side()
+        if params.side is None:
+            return params
         params.type = OrderCommandConsoleUtil.fetch_type()
+        if params.type is None:
+            return params
         params.symbol = OrderCommandConsoleUtil.fetch_symbol(symbols)
         if params.type != OrderType.Market:
             params.price = OrderCommandConsoleUtil.fetch_price()
