@@ -41,7 +41,6 @@ class RSIMACDMultiTF(bt.Strategy):
 
     def next(self):
         # print(self.datetime.date())
-        print("")
         for i, d in enumerate(self.datas):
             # 如果处理周线数据则跳过买卖条件，因为已在日线数
             # 据判断处理过

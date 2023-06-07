@@ -13,7 +13,7 @@ class RsiStrategy(TemplateStrategy):
         self.strategy_name = 'RSI策略'
         super().__init__()
         self.stop_loss = -2
-        self.take_profit = 2
+        self.take_profit = 5
 
         self.rsi_symbols = {}
         for klines in self.datas:
@@ -59,11 +59,13 @@ class RsiStrategy(TemplateStrategy):
                 order_value = abs(position.size) * position.price * 2
                 size = order_value / p_high[0]
                 if profit > self.take_profit:
-                    self.log(
-                        "{} \n{}\n{}".format(ColourTxtUtil.red('触发止盈'),
-                                             ConsoleFormatUtil.position_str(position, klines),
-                                             ConsoleFormatUtil.klines_str(klines)))
-                    self.close(data=klines)
+                    if order_value >= enable_cash:
+                        self.log(
+                            "{} \n{}\n{}".format(ColourTxtUtil.red('触发止盈'),
+                                                 ConsoleFormatUtil.position_str(position, klines),
+                                                 ConsoleFormatUtil.klines_str(klines)))
+                        self.close(data=klines)
+
                 elif profit < self.stop_loss:
                     if order_value >= enable_cash:
                         self.log(

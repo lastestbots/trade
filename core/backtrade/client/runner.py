@@ -61,7 +61,7 @@ class StrategyRunner:
                 self.klines[symbol].append(klines)
 
                 self.cerebro.adddata(data=CCxtPdData(dataname=klines),
-                                     name=symbol + "_" + timeframe)
+                                     name=symbol)
 
         #
 

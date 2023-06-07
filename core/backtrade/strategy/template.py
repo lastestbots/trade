@@ -14,12 +14,11 @@ class TemplateStrategy(bt.Strategy):
 
     def __init__(self):
         self.symbols = {}
-        # self.orders = {}
+
         self.log(ColourTxtUtil.red(self.strategy_name), islog=True)
         for klines in self.datas:
             symbol = SymbolUtil.klines_symbol(klines)
             self.symbols[symbol] = klines
-            # self.orders[symbol] = []
 
         self.order_value = 0
 
