@@ -57,6 +57,7 @@ runner.run()
     - 模拟期货交易
     - BREAKER策略
     - 基于一目均衡策略
+    - RIS策略
 - 分析器
     - 控制台显示分析报告
     - 生成财务分析报告
@@ -74,6 +75,22 @@ runner.run()
   ![img_9.png](img_9.png)
 - 结果
   ![img_10.png](img_10.png)
+
+### RSI策略
+
+- 思路
+
+```
+symbols: ['ETHUSDT', 'BTCUSDT', 'SOLUSDT', 'LTCUSDT']
+timeframe: 30m
+sign: 
+  rsi > 80 做空
+  rsi < 20 做多
+
+```
+
+- 结果
+  ![img_14.png](img_14.png)
 
 ## 分析器
 
