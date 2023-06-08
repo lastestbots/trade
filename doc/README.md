@@ -60,6 +60,7 @@ runner.run()
     - 基于一目均衡策略
     - RIS策略
     - 价格通道策略
+    - MACD 策略
 - 分析器
     - 控制台显示分析报告
     - 生成财务分析报告
@@ -73,8 +74,7 @@ runner.run()
 
 ### 一目均衡策略
 
-- 参数
-  ![img_9.png](img_9.png)
+
 - 结果
   ![img_10.png](img_10.png)
 
@@ -94,13 +94,28 @@ sign:
 ### 价格通道策略
 
 - 思路
-
 ```
 突破做多
 ```
-
 - 结果
-  ![img_15.png](img_15.png)
+![img_16.png](img_16.png)
+
+### MACD 策略
+- 时间级别 1d
+![img_17.png](img_17.png)
+- 时间级别 30m
+![img_18.png](img_18.png)
+
+### EMA_MACD 
+- 时间级别 1d
+![img_19.png](img_19.png)
+- 时间级别 30m
+![img_20.png](img_20.png)
+
+### 价格突破策略
+- 思路
+在价格突破某个值顺着突破做单
+![img_22.png](img_22.png)
 
 ## 分析器
 

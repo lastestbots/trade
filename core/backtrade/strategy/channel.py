@@ -43,10 +43,6 @@ class ChannelStrategy(TemplateStrategy):
         self.log(account, islog=True)
 
     def next(self):
-        # 调整可用资金
-        # if self.wallet <= 2 * self.broker.cash and self.broker.cash > self.init_cash:
-        #     self.wallet += self.broker.cash * 0.5
-        #     self.broker.cash = self.broker.cash * 0.5
         self.order_value = 0
         channel_period = 20
         stop_loss = self.stop_loss

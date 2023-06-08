@@ -8,7 +8,8 @@ class CalculatorUtil:
         :param price:
         :return:
         """
-
+        if position.price == 0:
+            return 0
         if position.size > 0:
             profit = (price - position.price) / position.price * 100
         elif position.size < 0:

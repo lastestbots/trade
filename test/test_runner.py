@@ -1,10 +1,13 @@
 import unittest
 
 from core.backtrade.client.runner import StrategyRunner
+from core.backtrade.strategy.breaker import BreakerStrategy
 from core.backtrade.strategy.channel import ChannelStrategy
+from core.backtrade.strategy.ema import EMAStrategy, EMAV2Strategy, SimpleEmaStrategy
 from core.backtrade.strategy.feature import FeatureTradeStrategy
 from core.backtrade.strategy.frequency import HighFrequencyStrategy
 from core.backtrade.strategy.ichimoku import IchimokuStrategy
+from core.backtrade.strategy.macd import MacdStrategy
 from core.backtrade.strategy.rbreaker import RBreakerStrategy
 from core.backtrade.strategy.rsi import RsiStrategy
 from core.backtrade.strategy.sma import SmaStrategy
@@ -71,15 +74,35 @@ class TestStrategyRunner(unittest.TestCase):
 
     def test_ris_strategy(self):
         runner = StrategyRunner()
-        # symbols = CCtxAdapter.query_symbols('USDT')
-        # import numpy as np
-        # symbols = np.random.choice(symbols, 4, replace=False)
-        # runner.config.trade_symbols = symbols
         runner.config.strategy = RsiStrategy
-
         runner.run()
 
     def test_channel_strategy(self):
         runner = StrategyRunner()
         runner.config.strategy = ChannelStrategy
+        runner.run()
+
+    def test_macd_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = MacdStrategy
+        runner.run()
+
+    def test_ema_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = EMAStrategy
+        runner.run()
+
+    def test_ema_v2_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = EMAV2Strategy
+        runner.run()
+
+    def test_simple_ema_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = SimpleEmaStrategy
+        runner.run()
+
+    def test_breaker_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = BreakerStrategy
         runner.run()

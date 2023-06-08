@@ -135,7 +135,11 @@ class TemplateStrategy(bt.Strategy):
         return positions
 
     def stop(self):
-        self.log("{} {}".format(ColourTxtUtil.red('手续费 '), self.trade_free_cost))
+        self.log("{} {}".format(ColourTxtUtil.red('总手续费 '), self.trade_free_cost), islog=True)
+        for klines in self.datas:
+            position = self.getposition(klines)
+            position_str = ConsoleFormatUtil.position_str(position, klines)
+            self.log(position_str, islog=True)
 
     def fetch_order(self, symbol):
         for order in self.broker.orders:
