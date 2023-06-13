@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from ccxt import NetworkError
@@ -6,6 +7,7 @@ from requests.exceptions import SSLError
 from core.model.enums import PriceDirection
 from core.utils.ccxt_util import OhlvUtil
 from core.utils.colour import ColourTxtUtil
+from core.utils.date_util import DateUtil
 from core.utils.message_util import DingTalkUtil
 
 
@@ -21,13 +23,15 @@ class AlertPriceTask:
     def run(self):
         while True:
             try:
+                time_str = DateUtil.datetime_to_format(datetime.datetime.now())
 
                 for i in range(len(self.symbols)):
                     time.sleep(1)
                     symbol = self.symbols[i]
                     price = OhlvUtil.fetch_last_price(symbol)
                     target_price = self.target_prices[i]
-                    self.log('{} {}'.format(ColourTxtUtil.blue(symbol), round(price, 3)))
+                    self.log(
+                        '{} {} {}'.format(ColourTxtUtil.green(time_str, ), ColourTxtUtil.blue(symbol), round(price, 3)))
 
                     if self.direction == PriceDirection.Up and price > target_price:
                         self.send_message(symbol, price, target_price)
