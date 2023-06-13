@@ -1,7 +1,7 @@
 import unittest
 
 from core.backtrade.client.runner import StrategyRunner
-from core.backtrade.strategy.breaker import BreakerStrategy
+from core.backtrade.strategy.breaker import BreakerStrategy, AverageBreakerStrategy
 from core.backtrade.strategy.channel import ChannelStrategy
 from core.backtrade.strategy.ema import EMAStrategy, EMAV2Strategy, SimpleEmaStrategy
 from core.backtrade.strategy.feature import FeatureTradeStrategy
@@ -105,4 +105,9 @@ class TestStrategyRunner(unittest.TestCase):
     def test_breaker_strategy(self):
         runner = StrategyRunner()
         runner.config.strategy = BreakerStrategy
+        runner.run()
+
+    def test_breaker_strategy(self):
+        runner = StrategyRunner()
+        runner.config.strategy = AverageBreakerStrategy
         runner.run()

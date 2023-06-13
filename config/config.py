@@ -60,6 +60,8 @@ for TRADE_ANALYZER in CONFIG_TRADE_ANALYZERS:
 PYFOLIO_TEMPLATE_PATH = fetch_pyfolio_template_path()
 
 FUNDUASAGE = int(config.get('trade', 'fundusage'))
+DINGDING_TOKEN = config.get('dingding', 'access_token')
+DINGDING_SECRET = config.get('dingding', 'secret')
 
 
 class CcxtConfig:
@@ -70,6 +72,11 @@ class CcxtConfig:
     api_key = CCXT_API_KEY
     # 交易所的密钥
     secret = CCXT_SECRET
+
+
+class DingdingConfig:
+    token = DINGDING_TOKEN
+    secret = DINGDING_SECRET
 
 
 class SystemConfig:

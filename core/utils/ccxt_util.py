@@ -19,6 +19,7 @@ interval_second = {
     "2h": 72000,
     "4h": 14400,
     "1d": 86400,
+    "3d": 86400 * 3,
 }
 _ohlv_head = ["Time", "Open", "Close", "High", "Low", "Volume"]
 
@@ -64,6 +65,10 @@ class OhlvUtil:
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         return filepath + "\\" + symbol.replace("/", '-') + '_' + timeframe + '.csv'
+
+    @staticmethod
+    def fetch_last_price(symbol):
+        return CCtxAdapter.fetch_ticker(symbol)['last']
 
     @staticmethod
     def download_ohlv(symbol: str, timeframe: str, since: int = None, ):
@@ -125,3 +130,6 @@ class OhlvUtil:
         with open(save_path, 'a') as csvfile:
             writer = csv.writer(csvfile, lineterminator='\n')
             writer.writerows(data)
+
+
+

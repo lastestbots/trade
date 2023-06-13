@@ -95,6 +95,13 @@ class CCtxAdapter:
         return resp
 
     @staticmethod
+    def fetch_ticker(symbol):
+        # 获取交易对的最新价格信息
+
+        ticker = ExchangeFactory.get_exchange().fetch_ticker(symbol)
+        return ticker
+
+    @staticmethod
     def fetch_trades(symbol, since=None, limit=None, params=None) -> List[Trade]:
         resp = []
         if params is None:
@@ -167,5 +174,6 @@ class CCtxAdapter:
             if symbol.endswith(current) and symbol.count(':') == 0:
                 symbols.append(symbol)
         return symbols
+
 
 

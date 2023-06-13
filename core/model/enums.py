@@ -3,6 +3,15 @@ from enum import Enum
 from core.backtrade import BackTradeConfig
 
 
+class PriceDirection(Enum):
+    Up = 'Up'
+    Down = 'Down'
+
+    @staticmethod
+    def value_of(value):
+        return PriceDirection[value]
+
+
 class OrderSide(Enum):
     """
     订单方向
@@ -28,9 +37,11 @@ class OrderType(Enum):
     """
     Market = 'M'
     Limit = 'L'
+
     @property
     def command(self):
         return self.value
+
     def is_market(self) -> bool:
         return self.value == OrderType.Market.value
 
@@ -49,3 +60,6 @@ class AnalyzerType(Enum):
     @staticmethod
     def value_of(analyzer):
         return AnalyzerType[analyzer]
+
+
+
