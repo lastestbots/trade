@@ -60,6 +60,23 @@ class DateUtil:
         return dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
     @staticmethod
+    def get_today_begin_datetime() -> datetime:
+        # 获取今天的日期
+        today = datetime.today().date()
+
+        # 获取今日开始时间，即00:00:00
+        today_start = datetime.combine(today, datetime.min.time())
+        return today_start
+
+    @staticmethod
+    def get_today_end_datetime() -> datetime:
+        # 获取今天的日期
+        today = datetime.today().date()
+
+        # 获取今日开始时间，即00:00:00
+        return datetime.combine(today, datetime.max.time())
+
+    @staticmethod
     def datetime_to_timestamp(date: datetime) -> int:
         """
         时间戳转字符串

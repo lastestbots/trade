@@ -72,6 +72,7 @@ class OhlvUtil:
     def fetch_last_price(symbol):
         return CCtxAdapter.fetch_ticker(symbol)['last']
 
+
     @staticmethod
     def download_ohlv(symbol: str, timeframe: str, since: int = None, ):
         """
