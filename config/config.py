@@ -28,7 +28,7 @@ if CCXT_API_KEY == 'None':
 CCXT_SECRET = config.get('ccxt', 'secret')
 if CCXT_SECRET == 'None':
     CCXT_SECRET = None
-
+RESOURCE_DATE_IS_UPDATE = config.get('system', 'is_update_data').lower() == 'true'
 TRADE_BALANCE = float(config.get('trade', 'balance'))
 TRADE_FEE = float(config.get('trade', 'fee'))
 TRADE_SYMBOLS = config.get('trade', 'symbols').split(',')
@@ -85,7 +85,8 @@ class SystemConfig:
     """
     # 资源位置
     resource_path = RESOURCE_PATH
-
+    # 是否更新数据
+    is_update_data = RESOURCE_DATE_IS_UPDATE
 
 class TradeConfig:
     """
