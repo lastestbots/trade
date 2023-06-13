@@ -26,7 +26,7 @@ pip install -r .\requirements.txt
 - VPN 配置
 
 ``` 
-keyword['proxies'] = {'http':'htt://127.0.0.1:7890','https':'htt://127.0.0.1:7890'}
+keyword['proxies'] = {'http':'http://127.0.0.1:7890','https':'http://127.0.0.1:7890'}
 ```
 
 ![img.png](img.png)

@@ -32,6 +32,7 @@ class OhlvUtil:
     @staticmethod
     def load_ohlv_as_pd(symbol: str, timeframe: str, start: dt.datetime = None,
                         end: dt.datetime = None) -> pd.DataFrame:
+
         logger.debug("加载数据 {}_{}".format(symbol, timeframe))
         filepath = OhlvUtil.symbol_local_path(symbol, timeframe)
         if not os.access(filepath, os.X_OK):
@@ -47,11 +48,12 @@ class OhlvUtil:
         start_str = DateUtil.datetime_to_format(start)
         end_str = DateUtil.datetime_to_format(end)
         # 更新本地数据
+        if SystemConfig.is_update_data:
 
-        if end_str > last_row['Time'].iloc[0]:
-            OhlvUtil.download_ohlv(symbol=symbol, timeframe=timeframe,
-                                   since=DateUtil.datetime_to_timestamp(start) * 1000)
-            klines = pd.read_csv(filepath, parse_dates=True, skiprows=0, header=0)
+            if end_str > last_row['Time'].iloc[0]:
+                OhlvUtil.download_ohlv(symbol=symbol, timeframe=timeframe,
+                                       since=DateUtil.datetime_to_timestamp(start) * 1000)
+                klines = pd.read_csv(filepath, parse_dates=True, skiprows=0, header=0)
 
         # 筛选数据
         klines = klines[(klines['Time'] <= end_str) & (klines['Time'] >= start_str)]
